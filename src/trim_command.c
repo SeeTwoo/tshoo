@@ -3,52 +3,26 @@
 
 #include "nodes.h"
 
-static size_t	skip_quoted(const char **s, char quote) {
-	size_t	len = 0;
+char	*trim_string(char const *s) {
+	char		*dest = malloc(sizeof(char) * (strlen(s) + 1));
+	char		*write = dest;
+	char const	*read = s;
 
-	while (**s && **s != quote)
-		(*s)++, len++;
-	if (**s == quote)
-		(*s)++;
-	return (len);
-}
-
-size_t	no_quote_size(const char *s) {
-	size_t	size = 0;
-
-	while (*s) {
-		if (*s == '\'' || *s == '\"')
-			size += skip_quoted(&s, *s);
-		else
-			s++, size++;
-	}
-	return (size);
-}
-
-void	no_quote_fill(char *dest, char *src) {
-	char	quote;
-
-	while (*src) {
-		if (*src == '\'' || *src == '\"') {
-			quote = *src++;
-			while (*src && *src != quote)
-				*dest++ = *src++;
-			if (*src == quote)
-				src++;
-		} else {
-			*dest++ = *src++;
-		}
-	}
-	*dest = '\0';
-}
-
-char	*trim_string(char *s) {
-	char	*dest;
-
-	dest = malloc(sizeof(char) * (no_quote_size(s) + 1));
 	if (!dest)
 		return (NULL);
-	no_quote_fill(dest, s);
+	while (*read) {
+		if (*read == '\'' || *read == '\"') {
+			char	quote = *read;
+			read++;
+			while (*read && *read != quote)
+				*write++ = *read++;
+			if (*read == quote)
+				read++;
+		} else {
+			*write++ = *read++;
+		}
+	}
+	*write = '\0';
 	return (dest);
 }
 
