@@ -55,13 +55,15 @@ static void	error_child_process(t_node **nodes, t_env *env) {
 	exit(EXIT_FAILURE);
 }
 
-static void	exec_command(t_node *command, t_env *env, t_node **nodes) {
+static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
 	char	**cmd_args;
 	char	**cmd_env;
 
 	command->pid = fork();
+	if (command->pid == -1)
+		return (dprintf(2, "%s%s", FATAL_HD, ERR_FORK), 1);
 	if (command->pid != 0)
-		return ;
+		return (0);
 	expand_command(command->command, env->env_list);
 	trim_command(command);
 	if (setup_redirections(command) == 1)
@@ -78,6 +80,7 @@ static void	exec_command(t_node *command, t_env *env, t_node **nodes) {
 
 int	exec(t_node **nodes, t_env *env) {
 	int			command_number;
+	int			ret = 0;
 	t_builtin	func;
 	
 	command_number = 0;
@@ -91,9 +94,11 @@ int	exec(t_node **nodes, t_env *env) {
 		else if (nodes[i]->command[0] && strchr(nodes[i]->command[0], '='))
 			assign_variable(env, nodes[i]->command[0]);
 		else if (get_bin_path(nodes[i], get_kv_value(env->env_list, "PATH")) == 0)
-			exec_command(nodes[i], env, nodes);
+			ret = exec_command(nodes[i], env, nodes);
 		else
 			dprintf(2, "%s%s : %s\n", MSTK_HD, nodes[i]->command[0], CMD_FND);
+		if (ret == 1)
+			env->should_exit = true;
 	}
 	close_every_fd();
 	while (--command_number >= 0)

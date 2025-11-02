@@ -37,13 +37,11 @@
 //init env
 # define NO_ENV "malloc failed, environment may be missing or incomplete"
 
-//exec config file
 # define NO_RC "tshoorc will not be run"
 
-//malloc
 #define ERR_MALLOC "malloc failed"
+#define ERR_FORK "fork failed"
 
-//home not set
 #define NO_HOME "HOME variable not set"
 
 #define UNKNOWN_OPTION "unknown option"
