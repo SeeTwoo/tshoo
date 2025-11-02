@@ -19,13 +19,13 @@ static t_key_value *env_to_list(char **env) {
 		return (NULL);
 	head = new_kv_node(*env);
 	if (!head)
-		return (dprintf(2, "%s%s\n", WARN_HD, NO_ENV), NULL);
+		return (dprintf(2, "%s%s, %s\n", WARN_HD, ERR_MALLOC, NO_ENV), NULL);
 	tail = head;
 	env++;
 	while (*env) {
 		tail->next = new_kv_node(*env);
 		if (!(tail->next))
-			return (dprintf(2, "%s%s\n", WARN_HD, NO_ENV), head);
+			return (dprintf(2, "%s%s, %s\n", WARN_HD, ERR_MALLOC, NO_ENV), head);
 		tail = tail->next;
 		env++;
 	}

@@ -35,7 +35,7 @@ static char *replace(char *old_line, char *current, char *alias, size_t key_len)
 	alias_len = strlen(alias);
 	line = malloc(sizeof(char) * (strlen(old_line) - key_len + alias_len + 1));
 	if (!line) {
-		dprintf(2, "%s%s\n", WARN_HD, NOT_ALIASED);
+		dprintf(2, "%s%s: %s\n", WARN_HD, ERR_MALLOC, NOT_ALIASED);
 		return (old_line);
 	}
 	first_half_len = current - old_line;

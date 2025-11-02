@@ -61,7 +61,7 @@ static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
 
 	command->pid = fork();
 	if (command->pid == -1)
-		return (dprintf(2, "%s%s", FATAL_HD, ERR_FORK), 1);
+		return (dprintf(2, "%s%s\n", FATAL_HD, ERR_FORK), 1);
 	if (command->pid != 0)
 		return (0);
 	expand_command(command->command, env->env_list);

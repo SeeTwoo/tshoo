@@ -28,11 +28,11 @@ char	*get_destination(t_node *node, t_key_value *list, int ac) {
 	if (ac == 1) {
 		destination = get_kv_value(list, "HOME");
 		if (!destination)
-			dprintf(2, "%s%s\n", WARN_HD, HOME_NOT_SET);
+			dprintf(2, "%s%s\n", WARN_HD, NO_HOME);
 	} else if (ac == 2 && strcmp("-", node->command[1]) == 0) {
 		destination = get_kv_value(list, "OLDPWD");
 		if (!destination)
-			dprintf(2, "%s%s\n", WARN_HD, OLDPWD_NOT_SET);
+			dprintf(2, "%s%s\n", WARN_HD, NO_OLDPWD);
 	} else {
 		destination = node->command[1];
 	}
@@ -59,6 +59,6 @@ int	tshoo_cd(t_node *node, t_env *env) {
 	free(pwd->value);
 	pwd->value = getcwd(NULL, 0);
 	if (!(pwd->value))
-		dprintf(2, "%s%s", WARN_HD, BROKEN_ENV);
+		dprintf(2, "%s%s: %s\n", WARN_HD, ERR_MALLOC, NO_ENV);
 	return (0);
 }

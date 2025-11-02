@@ -34,7 +34,7 @@ static char	*replace_key_with_value(char *s, char *value, char *dollar, size_t k
 	char	*end_s = &s[dollar + 1 - s + key_len];
 
 	if (!dest) 
-		return (dprintf(2, "%s%s\n", WARN_HD, EXP_FAILED_MALLOC), s);
+		return (dprintf(2, "%s%s: %s\n", WARN_HD, ERR_MALLOC, NO_EXPAND), s);
 	memcpy(dest, s, dollar - s);
 	memcpy(&dest[dollar - s], value, strlen(value));
 	memcpy(&dest[dollar - s + strlen(value)], end_s, strlen(end_s) + 1);
