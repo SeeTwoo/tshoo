@@ -3,7 +3,7 @@
 
 //msg hd
 # define MSTK_HD "\x1b[38;2;255;255;0m - tshoo - \x1b[0m"
-# define WARN_HD "\x1b[38;2;255;255;0m - tshoo: warning - \x1b[0m"
+# define WARN_HD "\x1b[38;2;255;127;0m - tshoo: warning - \x1b[0m"
 # define FATAL_HD "\x1b[38;2;255;0;0m - tshoo: fatal - \x1b[0m"
 
 //syntax warning
@@ -45,5 +45,7 @@
 
 //home not set
 #define NO_HOME "HOME variable not set"
+
+#define UNKNOWN_OPTION "unknown option"
 
 #endif

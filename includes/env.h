@@ -3,6 +3,7 @@
 
 #include "key_value.h"
 #include "tshoo_line.h"
+#include "tshoo_states.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -14,6 +15,7 @@ struct s_env {
 	t_key_value		*aliases;
 	t_key_value		*env_list;
 	t_tshoo_hist	*history;
+	t_style			style;
 };
 
 #endif

@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 typedef struct s_key_value	t_key_value;
 
 void		add_kv_back(t_key_value **list, t_key_value *new);

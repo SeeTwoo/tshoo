@@ -15,8 +15,6 @@ static t_key_value *env_to_list(char **env) {
 	t_key_value	*head;
 	t_key_value	*tail;
 
-///	int		i = 0;
-
 	if (!(*env))
 		return (NULL);
 	head = new_kv_node(*env);
@@ -25,15 +23,11 @@ static t_key_value *env_to_list(char **env) {
 	tail = head;
 	env++;
 	while (*env) {
-//		if (i >= 4)
-//			tail->next = NULL;
-//		else
 		tail->next = new_kv_node(*env);
 		if (!(tail->next))
 			return (dprintf(2, "%s%s\n", WARN_HD, NO_ENV), head);
 		tail = tail->next;
 		env++;
-	//	i++;
 	}
 	return (head);
 }
@@ -43,5 +37,6 @@ int	init_env(t_env *env, char **arg_env) {
 	env->history = NULL;
 	env->aliases = NULL;
 	env->should_exit = false;
+	env->style = E_FRIENDLY;
 	return (0);
 }

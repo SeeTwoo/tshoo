@@ -26,6 +26,7 @@ SRC_FILES = aliasing.c \
 			parsing.c \
 			print_nodes.c \
 			separator_token.c \
+			set_options.c \
 			set_token_types.c \
 			setup_redirections.c \
 			syntax.c \
@@ -36,6 +37,7 @@ SRC_FILES = aliasing.c \
 			tshoo_echo.c \
 			tshoo_env.c \
 			tshoo_exit.c \
+			tshoo_style.c \
 			tshoo_unalias.c \
 			tshoo_unset.c \
 			word_token.c

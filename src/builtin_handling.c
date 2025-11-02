@@ -12,6 +12,7 @@ int	tshoo_cd(t_node *cmd, t_env *env);
 int	tshoo_env(t_node *cmd, t_env *env);
 int	tshoo_exit(t_node *cmd, t_env *env);
 int	tshoo_echo(t_node *cmd, t_env *env);
+int	tshoo_style(t_node *cmd, t_env *env);
 int	tshoo_unalias(t_node *cmd, t_env *env);
 int	tshoo_unset(t_node *cmd, t_env *env);
 
@@ -34,6 +35,8 @@ t_builtin	is_builtin(char *name) {
 		return (tshoo_env);
 	else if (strcmp(name, "unset") == 0)
 		return (tshoo_unset);
+	else if (strcmp(name, "style") == 0)
+		return (tshoo_style);
 	return (NULL);
 }
 
