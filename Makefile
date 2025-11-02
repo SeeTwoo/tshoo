@@ -60,7 +60,7 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $< -o $@
 
-debug: fclean
+debug:
 	$(MAKE) CC="$(CCDEBUG)" all
 
 clean:

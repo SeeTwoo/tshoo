@@ -88,7 +88,7 @@ int	exec(t_node **nodes, t_env *env) {
 		func = is_builtin(nodes[i]->command[0]);
 		if (func)
 			exec_builtin(func, nodes[i], env);
-		else if (strchr(nodes[i]->command[0], '='))
+		else if (nodes[i]->command[0] && strchr(nodes[i]->command[0], '='))
 			assign_variable(env, nodes[i]->command[0]);
 		else if (get_bin_path(nodes[i], get_kv_value(env->env_list, "PATH")) == 0)
 			exec_command(nodes[i], env, nodes);
