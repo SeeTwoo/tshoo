@@ -4,6 +4,10 @@
 
 #include "env.h"
 
+#ifndef DEFAULT_PROMPT
+# define DEFAULT_PROMPT "\x1b[35m tshoo> \x1b[0m"
+#endif
+
 static char	*get_wd(t_key_value *env) {
 	char	*last_slash;
 	char	*wd;
@@ -33,10 +37,6 @@ static void fill_prompt(char *prompt, char *format, t_env *env) {
 	int		bit_len;
 	char	*bit;
 
-	if (!format) {
-		strcpy(prompt, "tshoo> ");
-		return ;
-	}
 	total_len = 0;
 	while (*format && total_len <= 255) {
 		if (*format != '%') {
@@ -74,7 +74,7 @@ void	escaping(char *ps1) {
 
 void	build_prompt(char *prompt, char *format, t_env *env) {
 	if (!format) {
-		fill_prompt(prompt, "\x1b[36m > \x1b[0m", env);
+		fill_prompt(prompt, DEFAULT_PROMPT, env);
 		return ;
 	}
 	char	*ps1_dup = strdup(format);
