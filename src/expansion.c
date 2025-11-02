@@ -25,7 +25,7 @@ static size_t	var_name_len(char const *s) {
 }
 
 static char	*replace_key_with_value(char *s, char *value, char *dollar, size_t key_len) {
-	size_t	dest_len = strlen(s) + 1 - key_len + strlen(value);
+	size_t	dest_len = strlen(s) - key_len + strlen(value) + 1;
 	char	*dest = malloc(sizeof(char) * dest_len);
 	char	*end_s = dollar + 1 + key_len;
 
@@ -62,7 +62,8 @@ static char	*expand_string(char *s, t_key_value *env) {
 			i += ft_charcspn(&s[i], '\'');
 		} else if (s[i] == '$') {
 			s = replace(s, s + i, env);
-			i++;
+			if (s[i])
+				i++;
 		} else {
 			i++;
 		}
