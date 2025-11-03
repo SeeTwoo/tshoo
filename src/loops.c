@@ -104,7 +104,7 @@ int	interactive_loop(t_env *env) {
 		build_prompt(prompt, get_kv_value(env->env_list, "PS1"), env);
 		line = get_interactive_line(prompt, env);
 		if (!line)
-			continue ;
+			return (tshoo_free_hist(env->history), 1);
 		process_line(line, env);
 		free(line);
 	}

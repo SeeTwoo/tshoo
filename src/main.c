@@ -14,7 +14,9 @@ int	main(int ac, char **av, char **arg_env) {
 	t_env		env;
 	t_sigaction	sa;
 	
-	sa.sa_handler = SIG_IGN;
+	sa.sa_handler = SIG_DFL;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
 	sigaction(SIGINT, &sa, NULL);
 	if (init_env(&env, arg_env) != 0)
 		return (1);
