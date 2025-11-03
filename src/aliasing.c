@@ -28,21 +28,12 @@ static size_t	skip_to_next_command_block(char *line) {
 
 static char *replace(char *old_line, char *current, char *alias, size_t key_len) {
 	char	*line;
-	size_t	alias_len;
-	size_t	first_half_len;
-	char	*last_half;
 
-	alias_len = strlen(alias);
-	line = malloc(sizeof(char) * (strlen(old_line) - key_len + alias_len + 1));
-	if (!line) {
-		dprintf(2, "%s%s: %s\n", WARN_HD, ERR_MALLOC, NOT_ALIASED);
-		return (old_line);
-	}
-	first_half_len = current - old_line;
-	last_half = (char*)(current + key_len);
-	memcpy(line, old_line, first_half_len);
-	memcpy(line + first_half_len, alias, alias_len);
-	memcpy(line + first_half_len + alias_len, last_half, strlen(last_half) + 1);
+	line = malloc(sizeof(char) * (strlen(old_line) - key_len + strlen(alias) + 1));
+	if (!line)
+		return (dprintf(2, "%s%s: %s\n", WARN_HD, ERR_MALLOC, NOT_ALIASED), old_line);
+	*current = '\0';
+	sprintf(line, "%s%s%s", old_line, alias, current + key_len);
 	free(old_line);
 	return (line);
 }
