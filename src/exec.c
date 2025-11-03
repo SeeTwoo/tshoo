@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,6 +65,7 @@ static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
 		return (dprintf(2, "%s%s\n", FATAL_HD, ERR_FORK), 1);
 	if (command->pid != 0)
 		return (0);
+	sigaction(SIGINT, &(struct sigaction){.sa_handler = SIG_DFL}, NULL);
 	expand_command(command->command, env->env_list);
 	trim_command(command);
 	if (setup_redirections(command) == 1)

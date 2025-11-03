@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <signal.h>
 
 #include "env.h"
 
@@ -7,9 +8,14 @@ int		init_env(t_env *env, char **arg_env);
 void	interactive_loop(t_env *env);
 void	set_options(t_env *env, int ac, char **av);
 
+typedef struct sigaction	t_sigaction;
+
 int	main(int ac, char **av, char **arg_env) {
-	t_env	env;
+	t_env		env;
+	t_sigaction	sa;
 	
+	sa.sa_handler = SIG_IGN;
+	sigaction(SIGINT, &sa, NULL);
 	if (init_env(&env, arg_env) != 0)
 		return (1);
 	set_options(&env, ac, av);
