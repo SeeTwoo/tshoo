@@ -20,6 +20,7 @@ void	free_node_array(t_node **nodes);
 char	*get_next_line(int fd);
 t_node	**parse_line(char *line);
 void	print_nodes(t_node **array);
+
 /*
 static int	contains_unclosed_quotes(char *line) {
 	char	quote = 0;
@@ -54,7 +55,6 @@ int	process_line(char *line, t_env *env) {
 	nodes = parse_line(line);
 	if (!nodes)
 		return (1);
-//	print_nodes(nodes);
 	exec(nodes, env);
 	free_node_array(nodes);
 	return (0);
@@ -86,18 +86,26 @@ int	script_loop(t_env *env, char *path) {
 	return (0);
 }
 
+char	*new_aliasing(char *line, t_key_value *aliases_list);
+
 char	*get_interactive_line(char *prompt, t_env *env) {
 	char	*line = tshoo_line(prompt, env->history);
+	char	*test_line;
 
 	if (!line)
 		return NULL;
+	test_line = new_aliasing(line, env->aliases);
+	printf("%s\n", test_line);
+	free(test_line);
 	tshoo_add_hist(line, env->history);
 	return (aliasing(line, env->aliases));
 }
 
+
 int	interactive_loop(t_env *env) {
 	char		prompt[256];
 	char		*line;
+
 
 	env->history = tshoo_init_hist();
 	while (!env->should_exit) {

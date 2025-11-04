@@ -11,6 +11,13 @@ struct s_key_value {
 	t_key_value	*next;
 };
 
+void	display_kv(t_key_value *list) {
+	while (list) {
+		printf("%s and %s\n", list->key, list->key);
+		list = list->next;
+	}
+}
+
 static t_key_value *env_to_list(char **env) {
 	t_key_value	*head;
 	t_key_value	*tail;
