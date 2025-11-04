@@ -86,19 +86,16 @@ int	script_loop(t_env *env, char *path) {
 	return (0);
 }
 
-char	*new_aliasing(char *line, t_key_value *aliases_list);
-
 char	*get_interactive_line(char *prompt, t_env *env) {
 	char	*line = tshoo_line(prompt, env->history);
-	char	*test_line;
+	char	*aliased_line;
 
 	if (!line)
 		return NULL;
-	test_line = new_aliasing(line, env->aliases);
-	printf("%s\n", test_line);
-	free(test_line);
 	tshoo_add_hist(line, env->history);
-	return (aliasing(line, env->aliases));
+	aliased_line = aliasing(line, env->aliases);
+	free(line);
+	return (aliased_line);
 }
 
 

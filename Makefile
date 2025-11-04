@@ -4,7 +4,6 @@ CCDEBUG = $(CC) -g3 -O0
 
 SRC_DIR = src
 SRC_FILES = aliasing.c \
-			new_aliasing.c \
 			assign_variable.c \
 			build_prompt.c \
 			builtin_handling.c \
