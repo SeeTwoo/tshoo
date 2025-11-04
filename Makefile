@@ -6,7 +6,6 @@ SRC_DIR = src
 SRC_FILES = aliasing.c \
 			assign_variable.c \
 			build_prompt.c \
-			builtin_handling.c \
 			cleaning.c \
 			environment_manipulation.c \
 			exec.c \
@@ -25,7 +24,6 @@ SRC_FILES = aliasing.c \
 			parser.c \
 			parsing.c \
 			print_nodes.c \
-			separator_token.c \
 			set_options.c \
 			set_token_types.c \
 			setup_redirections.c \
@@ -39,8 +37,7 @@ SRC_FILES = aliasing.c \
 			tshoo_exit.c \
 			tshoo_style.c \
 			tshoo_unalias.c \
-			tshoo_unset.c \
-			word_token.c
+			tshoo_unset.c
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 
