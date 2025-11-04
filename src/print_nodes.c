@@ -31,7 +31,7 @@ void	print_redir(t_redir *redir) {
 void	print_nodes(t_node **nodes) {
 	for (int i = 0; nodes[i]; i++) {
 		dprintf(2, "    --- node ---\n");
-		print_command(nodes[i]->command);
+		print_command(nodes[i]->arg);
 		if (nodes[i]->in_redir)
 			dprintf(2, "\x1b[33min redirs: \x1b[0m");
 		print_redir(nodes[i]->in_redir);

@@ -70,6 +70,4 @@ fclean: clean
 
 re: fclean all
 
-re_debug: fclean debug
-
 .PHONY: all debug clean fclean re

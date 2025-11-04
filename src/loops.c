@@ -50,12 +50,13 @@ void	nullifythenewline(char *line) {
 int	process_line(char *line, t_env *env) {
 	t_node		**nodes;
 
+	(void)env;
 	if (line[0] == '#')
 		return (0);
 	nodes = parse_line(line);
 	if (!nodes)
 		return (1);
-	exec(nodes, env);
+//	exec(nodes, env);
 	free_node_array(nodes);
 	return (0);
 }
@@ -110,6 +111,8 @@ int	interactive_loop(t_env *env) {
 		line = get_interactive_line(prompt, env);
 		if (!line)
 			return (tshoo_free_hist(env->history), 1);
+		if (strcmp(line, "exit") == 0)
+			env->should_exit = true;
 		process_line(line, env);
 		free(line);
 	}

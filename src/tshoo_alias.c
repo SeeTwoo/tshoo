@@ -30,13 +30,13 @@ static ssize_t	is_valid_alias(char *new_kv) {
 int	tshoo_alias(t_node *node, t_env *env) {
 	ssize_t	key_len;
 
-	if (!node->command[1])
+	if (!node->arg[1])
 		return (display_aliases(env->aliases), 0);
-	for (int i = 1; node->command[i]; i++) {
-		key_len = is_valid_alias(node->command[i]);
+	for (int i = 1; node->arg[i]; i++) {
+		key_len = is_valid_alias(node->arg[i]);
 		if (key_len == 1)
 			continue ;
-		modify_kv_list(&(env->aliases), node->command[i], key_len);
+		modify_kv_list(&(env->aliases), node->arg[i], key_len);
 	}
 	return (0);
 }

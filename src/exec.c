@@ -63,7 +63,7 @@ void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	int	saved_stdin = dup(STDIN_FILENO);
 	int	saved_stdout = dup(STDOUT_FILENO);
 
-	expand_command(node->command, env->env_list);
+	expand_command(node->arg, env->env_list);
 	trim_command(node);
 	setup_redirections(node);
 	func(node, env);
@@ -112,12 +112,12 @@ static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
 	if (command->pid != 0)
 		return (0);
 	sigaction(SIGINT, &(struct sigaction){.sa_handler = SIG_DFL}, NULL);
-	expand_command(command->command, env->env_list);
+	expand_command(command->arg, env->env_list);
 	trim_command(command);
 	if (setup_redirections(command) == 1)
 		error_child_process(nodes, env);
-	cmd_args = command->command;
-	command->command = NULL;
+	cmd_args = command->arg;
+	command->arg = NULL;
 	cmd_env = list_to_env(env->env_list);
 	clean_child_process(nodes, env);
 	execve(cmd_args[0], cmd_args, cmd_env);
@@ -136,15 +136,15 @@ int	exec(t_node **nodes, t_env *env) {
 		command_number++;
 	get_pipes(nodes, command_number);
 	for (int i = 0; i < command_number; i++) {
-		func = is_builtin(nodes[i]->command[0]);
+		func = is_builtin(nodes[i]->arg[0]);
 		if (func)
 			exec_builtin(func, nodes[i], env);
-		else if (nodes[i]->command[0] && strchr(nodes[i]->command[0], '='))
-			assign_variable(env, nodes[i]->command[0]);
+		else if (nodes[i]->arg[0] && strchr(nodes[i]->arg[0], '='))
+			assign_variable(env, nodes[i]->arg[0]);
 		else if (get_bin_path(nodes[i], get_kv_value(env->env_list, "PATH")) == 0)
 			ret = exec_command(nodes[i], env, nodes);
 		else
-			dprintf(2, "%s%s : %s\n", MSTK_HD, nodes[i]->command[0], CMD_FND);
+			dprintf(2, "%s%s : %s\n", MSTK_HD, nodes[i]->arg[0], CMD_FND);
 		if (ret == 1)
 			env->should_exit = true;
 	}

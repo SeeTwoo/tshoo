@@ -46,8 +46,8 @@ void	free_list_redir(t_redir *head) {
 void	free_node(t_node *node) {
 	if (!node)
 		return ;
-	if (node->command)
-		free_double_array(node->command);
+	if (node->arg)
+		free_double_array(node->arg);
 	if (node->in_redir)
 		free_list_redir(node->in_redir);
 	if (node->out_redir)

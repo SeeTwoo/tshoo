@@ -22,7 +22,7 @@ void	print_type(t_token *head) {
 
 void	print_tok_list(t_token *head) {
 	while (head) {
-		print_type(head);
+//		print_type(head);
 		write(1, head->start, head->len);
 		write(1, "\n", 1);
 		head = head->next;
@@ -31,7 +31,7 @@ void	print_tok_list(t_token *head) {
 
 //NEEEEDS BETTER FREEEEES
 t_node	**parse_line(char *line) {
-	t_node	**nodes;
+	//t_node	**nodes;
 	t_token	*tok_list;
 	t_token	**tok_array;
 
@@ -41,13 +41,17 @@ t_node	**parse_line(char *line) {
 	tok_array = list_to_array(tok_list);
 	if (!tok_array)
 		return (free_token_list(tok_list), NULL);
+	/*
 	if (!is_syntaxically_correct(tok_array))
 		return (free_token_array(tok_array), NULL);
 	set_token_types(tok_array);
-//	print_tok_list(tok_list);
 	nodes = create_nodes(tok_array);
+	*/
+	print_tok_list(tok_list);
 	free_token_array(tok_array);
+	/*
 	if (!nodes)
 		return (NULL);
-	return (nodes);
+	*/
+	return (NULL);
 }

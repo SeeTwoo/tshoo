@@ -14,11 +14,11 @@ static void	delete_all_aliases(t_env *env) {
 }
 
 int	tshoo_unalias(t_node *node, t_env *env) {
-	if (!(node->command[1]))
+	if (!(node->arg[1]))
 		return (dprintf(2, "%s%s\n", WARN_HD, UNAL_USAGE), 0);
-	if (strncmp(node->command[1], "-a", 2) == 0)
+	if (strncmp(node->arg[1], "-a", 2) == 0)
 		return (delete_all_aliases(env), 0);
-	for (int i = 1; node->command[i]; i++)
-		delete_kv_node(&env->aliases, node->command[i]);
+	for (int i = 1; node->arg[i]; i++)
+		delete_kv_node(&env->aliases, node->arg[i]);
 	return (1);
 }

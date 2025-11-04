@@ -29,12 +29,12 @@ char	*get_destination(t_node *node, t_key_value *list, int ac) {
 		destination = get_kv_value(list, "HOME");
 		if (!destination)
 			dprintf(2, "%s%s\n", WARN_HD, NO_HOME);
-	} else if (ac == 2 && strcmp("-", node->command[1]) == 0) {
+	} else if (ac == 2 && strcmp("-", node->arg[1]) == 0) {
 		destination = get_kv_value(list, "OLDPWD");
 		if (!destination)
 			dprintf(2, "%s%s\n", WARN_HD, NO_OLDPWD);
 	} else {
-		destination = node->command[1];
+		destination = node->arg[1];
 	}
 	return (destination);
 }
@@ -43,7 +43,7 @@ int	tshoo_cd(t_node *node, t_env *env) {
 	t_key_value	*old_pwd = kv_chr(env->env_list, "OLDPWD");
 	t_key_value	*pwd = kv_chr(env->env_list, "PWD");
 	char		*path;
-	int			ac = array_len(node->command);
+	int			ac = array_len(node->arg);
 
 	if (ac > 2)
 		return (dprintf(2, "%s%s : %s\n", WARN_HD, "cd", TOO_MANY), 1);
@@ -53,7 +53,7 @@ int	tshoo_cd(t_node *node, t_env *env) {
 	if (access(path, F_OK) != 0)
 		return (1);
 	if (chdir(path) == -1)
-		return (dprintf(2, "%s%s : %s\n", WARN_HD, node->command[1], strerror(errno)), 1);
+		return (dprintf(2, "%s%s : %s\n", WARN_HD, node->arg[1], strerror(errno)), 1);
 	free(old_pwd->value);
 	old_pwd->value = strdup(pwd->value);
 	free(pwd->value);

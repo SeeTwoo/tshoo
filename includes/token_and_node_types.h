@@ -10,7 +10,11 @@ enum e_token_and_node_types {
 	TRUNC = 512,
 	APPEND = 1024,
 	FILE_NAME,
-	WRONG
+	WRONG,
+	AND,
+	OPEN_PAR,
+	CLOS_PAR,
+	SEMI_COL
 };
 
 #endif

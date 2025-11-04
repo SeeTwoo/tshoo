@@ -27,13 +27,13 @@ static t_node	*new_node(t_token **tok_array) {
 	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);
-	new->command = tok_to_args(tok_array);
-	if (!new->command)
+	new->arg = tok_to_args(tok_array);
+	if (!new->arg)
 		return (free(new), NULL);
 	new->in_redir = NULL;
 	new->out_redir = NULL;
 	if (get_redirections(new, tok_array) == 1)
-		return (free_double_array(new->command), free(new), NULL);
+		return (free_double_array(new->arg), free(new), NULL);
 	new->type = CMD;
 	new->pid = -1;
 	return (new);

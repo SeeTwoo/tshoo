@@ -30,9 +30,9 @@ int	trim_command(t_node *node) {
 	char	**cmd;
 	char	*temp;
 
-	if (!node || !node->command || !node->command[0])
+	if (!node || !node->arg|| !node->arg[0])
 		return (1);
-	cmd = node->command;
+	cmd = node->arg;
 	for (int i = 0; cmd[i]; i++) {
 		temp = trim_string(cmd[i]);
 		if (!temp)
