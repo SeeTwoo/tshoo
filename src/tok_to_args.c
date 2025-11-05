@@ -4,30 +4,33 @@
 #include "token.h"
 #include "token_and_node_types.h"
 
-char	**tok_to_args(t_token **tok_array) {
-	char	**command;
-	int		i;
-	int		j;
+int	is_redir(t_token *token);
 
-	i = 0;
-	j = 0;
-	while (tok_array[i] && tok_array[i]->type != PIPE) {
-		if (tok_array[i]->type == WORD)
-			j++;
-		i++;
+size_t	arg_number(t_token *toks) {
+	size_t	i;
+
+	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
+		if (toks->type == WORD)
+			i++;
+		toks = toks->next;
 	}
-	command = malloc(sizeof(char *) * (j + 1));
-	if (!command)
+	return (i);
+}
+
+char	**tok_to_args(t_token *toks) {
+	char	**args;
+	int		i = 0;
+
+	args = malloc(sizeof(char *) * (arg_number(toks) + 1));
+	if (!args)
 		return (NULL);
-	i = 0;
-	j = 0;
-	while (tok_array[i] && tok_array[i]->type != PIPE) {
-		if (tok_array[i]->type == WORD) {
-			command[j] = strndup(tok_array[i]->start, tok_array[i]->len);
-			j++;
+	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
+		if (toks->type == WORD) {
+			args[i] = strndup(toks->start, toks->len);
+			i++;
 		}
-		i++;
+		toks = toks->next;
 	}
-	command[j] = NULL;
-	return (command);
+	args[i] = NULL;
+	return (args);
 }

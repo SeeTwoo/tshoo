@@ -8,6 +8,7 @@
 
 //general syntax
 # define UNCLOSED_PIPE "unclosed pipe"
+# define UNCLOSED_PAR "unclosed parenthesis"
 # define REDIR_FILE_NAME "needs a file name to redirect"
 # define UNKNOWN_TOK "unknown token"
 # define CMD_FND "command not found"

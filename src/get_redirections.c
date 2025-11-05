@@ -8,8 +8,9 @@
 
 int	is_in_redir(t_token *token);
 int	is_out_redir(t_token *token);
+int	is_redir(t_token *token);
 
-void	add_redir(t_redir **tail, t_redir **head, t_token **toks) {
+void	add_redir(t_redir **tail, t_redir **head, t_token *toks) {
 	t_redir *new;
 
 	new = malloc(sizeof(t_redir));
@@ -23,26 +24,28 @@ void	add_redir(t_redir **tail, t_redir **head, t_token **toks) {
 		*tail = (*tail)->next;
 	}
 	new->name = NULL;
-	new->name = strndup(toks[1]->start, toks[1]->len);
-	new->type = toks[0]->type;
+	new->name = strndup(toks->next->start, toks->next->len);
+	new->type = toks->type;
 	new->next = NULL;
 }
 
-int	get_redirections(t_node *node, t_token **toks) {
+int	get_redirections(t_node *node, t_token *toks) {
 	t_redir	*in_tail;
 	t_redir	*out_tail;
 
+	node->in_redir = NULL;
+	node->out_redir = NULL;
 	in_tail = NULL;
 	out_tail = NULL;
-	while (*toks && (*toks)->type != PIPE) {
-		if (is_in_redir(*toks)) {
+	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
+		if (is_in_redir(toks)) {
 			add_redir(&in_tail, &(node->in_redir), toks);
-			toks += 2;
-		} else if (is_out_redir(*toks)) {
+			toks = toks->next->next;
+		} else if (is_out_redir(toks)) {
 			add_redir(&out_tail, &(node->out_redir), toks);
-			toks += 2;
+			toks = toks->next->next;
 		} else {
-			toks++;
+			toks = toks->next;
 		}
 	}
 	return (0);

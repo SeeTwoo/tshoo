@@ -28,16 +28,33 @@ void	print_redir(t_redir *redir) {
 	dprintf(2, "\n");
 }
 
-void	print_nodes(t_node **nodes) {
-	for (int i = 0; nodes[i]; i++) {
-		dprintf(2, "    --- node ---\n");
-		print_command(nodes[i]->arg);
-		if (nodes[i]->in_redir)
-			dprintf(2, "\x1b[33min redirs: \x1b[0m");
-		print_redir(nodes[i]->in_redir);
-		if (nodes[i]->out_redir)
-			dprintf(2, "\x1b[34mout redirs: \x1b[0m");
-		print_redir(nodes[i]->out_redir);
-		dprintf(2, "\n");
-	}
+void	print_type(int type) {
+	if (type == CMD)
+		printf("CMD");
+
+	else if (type == PIPE)
+		printf("PIPE");
+
+	else if (type == AND)
+		printf("AND");
+
+	else if (type == OR)
+		printf("OR");
+
+	else if (type == SEMI_COL)
+		printf("SEMI_COL");
+}
+
+void	print_nodes(t_node *node) {
+	if (!node)
+		return ;
+	printf("   --- node ---\n");
+	print_type(node->type);
+	if (node->type == CMD)
+		printf("\t\t%s\n", node->arg[0]);
+	else
+		printf("\n");
+	printf("\n");
+	print_nodes(node->left);
+	print_nodes(node->right);
 }

@@ -9,6 +9,8 @@ struct s_token {
 	char	*start;
 	size_t	len;
 	int		type;
+	int		prec;
+	int		sublvl;
 	t_token	*next;
 };
 

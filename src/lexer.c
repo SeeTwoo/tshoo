@@ -19,6 +19,17 @@ static void	skip_whitespaces(char **line) {
 		(*line)++;
 }
 
+static int	get_precedence(int type) {
+	if (type == SEMI_COL)
+		return (0);
+	else if (type == AND || type == OR)
+		return (1);
+	else if (type == PIPE)
+		return (2);
+	else
+		return (3);
+}
+
 static int	get_multi_type(char current, int len) {
 	if (current == '<' && len == 1)
 		return (IN);
@@ -30,6 +41,8 @@ static int	get_multi_type(char current, int len) {
 		return (APPEND);
 	else if (current == '|' && len == 1)
 		return (PIPE);
+	else if (current == '|' && len == 2)
+		return (OR);
 	else if (current == '&' && len == 2)
 		return (AND);
 	return (WRONG);
@@ -80,6 +93,7 @@ static t_token	*mono_delim_token(char **line) {
 	new->len = 1;
 	new->next = NULL;
 	new->type = get_mono_type(**line);
+	new->prec = get_precedence(new->type);
 	(*line)++;
 	return (new);
 }
@@ -97,6 +111,7 @@ static t_token *multi_delim_token(char **line) {
 	new->len = len;
 	new->next = NULL;
 	new->type = get_multi_type(current, len);
+	new->prec = get_precedence(new->type);
 	(*line) += len;
 	return (new);
 }
@@ -111,6 +126,7 @@ static t_token	*word_token(char **line) {
 	new->len = word_len(line);
 	new->next = NULL;
 	new->type = WORD;
+	new->prec = get_precedence(new->type);
 	return (new);
 }
 

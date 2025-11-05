@@ -1,6 +1,7 @@
 #ifndef NODES_H
 # define NODES_H
 
+#include <stdbool.h>
 #include <sys/types.h>
 
 #include "redirections.h"
@@ -17,6 +18,8 @@ struct s_node {
 	pid_t	pid;
 	t_node	*left;
 	t_node	*right;
+	int		sublvl;
+	int		prec;
 };
 
 #endif

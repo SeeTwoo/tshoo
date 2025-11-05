@@ -11,23 +11,31 @@ int	is_redir(t_token *token);
 int	is_wrong_token(t_token *token);
 int	is_word(t_token *token);
 
-int	is_syntaxically_correct(t_token **tok_array) {
-	int	i;
+int	is_syntaxically_correct(t_token **toks) {
+	int	i = 0;
+	int	sublvl = 0;
 
-	i = 0;
-	while (tok_array[i]) {
-		if (is_pipe(tok_array[i]) && (i == 0 || !tok_array[i + 1] || is_pipe(tok_array[i + 1]))) {
-			dprintf(2, "%s%s\n", MSTK_HD, UNCLOSED_PIPE);
-			return (0);
-		}
-		if (is_redir(tok_array[i]) && (!tok_array[i + 1] || !is_word(tok_array[i + 1]))) {
-			dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)tok_array[i]->len, tok_array[i]->start, REDIR_FILE_NAME);
-			return (0);
-		}
-		if (is_wrong_token(tok_array[i])) {
-			dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)tok_array[i]->len, tok_array[i]->start, UNKNOWN_TOK);
-			return (0);
-		}
+	while (toks[i]) {
+		if (sublvl < 0)
+			return (dprintf(2, "%s%s\n", MSTK_HD, UNCLOSED_PAR), 0);
+
+		if (is_pipe(toks[i]) && (i == 0 || !toks[i + 1] || is_pipe(toks[i + 1])))
+			return (dprintf(2, "%s%s\n", MSTK_HD, UNCLOSED_PIPE), 0);
+
+		if (is_redir(toks[i]) && (!toks[i + 1] || !is_word(toks[i + 1])))
+			return (dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)toks[i]->len, toks[i]->start, REDIR_FILE_NAME), 0);
+
+		if (is_wrong_token(toks[i]))
+			return (dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)toks[i]->len, toks[i]->start, UNKNOWN_TOK), 0);
+
+		if (toks[i]->type == OPEN_PAR)
+			sublvl++;
+
+		if (toks[i]->type == CLOS_PAR)
+			sublvl--;
+
+		toks[i]->sublvl = sublvl;
+
 		i++;
 	}
 	return (1);

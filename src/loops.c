@@ -21,23 +21,6 @@ char	*get_next_line(int fd);
 t_node	**parse_line(char *line);
 void	print_nodes(t_node **array);
 
-/*
-static int	contains_unclosed_quotes(char *line) {
-	char	quote = 0;
-
-	while (*line) {
-		if (*line == '\'' || *line == '"') {
-			if (quote == 0)
-				quote = *line;
-			else if (quote == *line)
-				quote = 0;
-		}
-		line++;
-	}
-	return (quote != 0);
-}
-*/
-
 void	nullifythenewline(char *line) {
 	char	*nl;
 

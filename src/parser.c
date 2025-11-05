@@ -2,64 +2,91 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <unistd.h>
+
 #include "nodes.h"
 #include "token.h"
 #include "token_and_node_types.h"
 
 void	free_double_array(char **array);
-char	**tok_to_args(t_token **tok_array);
-int		get_redirections(t_node *node, t_token **tok_array);
+int		get_redirections(t_node *node, t_token *toks);
+int		is_redir(t_token *token);
+char	**tok_to_args(t_token *toks);
 
-int	command_number(t_token **tok_array) {
-	int	number;
+void	print_type(int type);
 
-	number = 0;
-	for (int i = 0; tok_array[i]; i++)
-		if (tok_array[i]->type == PIPE)
-			number++;
-	number++;
-	return (number);
+static t_token *skip_parenthesis(t_token **toks) {
+	while (*toks && ((*toks)->type == OPEN_PAR || (*toks)->type == CLOS_PAR))
+		*toks = (*toks)->next;
+	return (*toks);
 }
 
-static t_node	*new_node(t_token **tok_array) {
+static t_node	*new_cmd_node(t_token **toks) {
 	t_node	*new;
+
+	/*
+	write(1, (*toks)->start, (*toks)->len);
+	printf("\n");
+	*/
 
 	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);
-	new->arg = tok_to_args(tok_array);
+	new->arg = tok_to_args(*toks);
 	if (!new->arg)
 		return (free(new), NULL);
-	new->in_redir = NULL;
-	new->out_redir = NULL;
-	if (get_redirections(new, tok_array) == 1)
+	if (get_redirections(new, *toks) == 1)
 		return (free_double_array(new->arg), free(new), NULL);
 	new->type = CMD;
 	new->pid = -1;
+	new->left = NULL;
+	new->right = NULL;
+	new->sublvl = (*toks)->sublvl;
+	new->prec = 3;
+	while (*toks && (is_redir(*toks) || (*toks)->type == WORD || (*toks)->type == FILE_NAME))
+		*toks = (*toks)->next;
 	return (new);
 }
 
-//awful memory cleaning DO IT BETTER
-t_node	**create_nodes(t_token **tok_array) {
-	int		i;
-	t_node	**nodes;
+static t_node	*new_operator_node(t_token **toks, t_node *left) {
+	t_node	*new;
 
-	nodes = malloc(sizeof(t_node *) * (command_number(tok_array) + 1));
-	if (!nodes)
+	print_type((*toks)->type);
+	printf("\t\t%s", left->arg[0]);
+	printf("\n");
+	new = malloc(sizeof(t_node));
+	if (!new)
 		return (NULL);
-	i = 0;
-	while (*tok_array) {
-		if ((*tok_array)->type == PIPE) {
-			tok_array++;
-			continue ;
-		}
-		nodes[i] = new_node(tok_array);
-		if (!nodes[i])
-			return (NULL);
-		while ((*tok_array) && (*tok_array)->type != PIPE)
-			tok_array++;
-		i++;
+	new->arg = NULL;
+	new->pid = -1;
+	new->in_redir = NULL;
+	new->out_redir = NULL;
+	new->sublvl = (*toks)->sublvl;
+	new->type = (*toks)->type;
+	new->prec = (*toks)->prec;
+	new->left = left;
+	new->right = NULL;
+	*toks = (*toks)->next;
+	return (new);
+}
+
+t_node	*create_nodes(t_token *toks) {
+	t_node	*ast;
+	t_node	*leaf;
+
+	toks = skip_parenthesis(&toks);
+	ast = new_cmd_node(&toks);
+	leaf = ast;
+	if (!ast)
+		return (NULL);
+	for (; toks;) {
+		toks = skip_parenthesis(&toks);
+		if (ast->prec > toks->prec || ast->sublvl > toks->sublvl)
+			ast = new_operator_node(&toks, ast);
+		else if (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)
+			leaf->right = new_cmd_node(&toks);
+		else
+			leaf->right = new_operator_node(&toks, leaf->right);
 	}
-	nodes[i] = NULL;
-	return (nodes);
+	return (ast);
 }
