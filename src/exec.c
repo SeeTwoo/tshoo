@@ -18,7 +18,6 @@ char		**list_to_env(t_key_value *env);
 int			expand_command(char **cmd, t_key_value *env);
 void		free_double_array(char **array);
 void		free_kv_list(t_key_value*);
-void		free_node_array(t_node **nodes);
 int			get_bin_path(t_node *node, char *path);
 char		*get_kv_value(t_key_value *list, char *key);
 void		print_nodes(t_node **nodes);
@@ -90,7 +89,8 @@ static int	get_pipes(t_node **nodes, int command_number) {
 }
 
 static void	clean_child_process(t_node **nodes, t_env *env) {
-	free_node_array(nodes);
+	(void)nodes;
+	//free_node_array(nodes);
 	tshoo_free_hist(env->history);
 	free_kv_list(env->aliases);
 	free_kv_list(env->env_list);

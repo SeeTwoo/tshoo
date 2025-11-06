@@ -19,11 +19,11 @@ SRC_FILES = aliasing.c \
 			is_token_type.c \
 			lexer.c \
 			list_to_array.c \
+			logging_and_debugging.c \
 			loops.c \
 			main.c \
 			parser.c \
 			parsing.c \
-			print_nodes.c \
 			set_options.c \
 			set_token_types.c \
 			setup_redirections.c \

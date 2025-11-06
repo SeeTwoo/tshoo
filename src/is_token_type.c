@@ -1,6 +1,14 @@
 #include "token.h"
 #include "token_and_node_types.h"
 
+int	is_or(t_token *token) {
+	return (token->type == OR);
+}
+
+int	is_and(t_token *token) {
+	return (token->type == AND);
+}
+
 int	is_pipe(t_token *token) {
 	return (token->type == PIPE);
 }

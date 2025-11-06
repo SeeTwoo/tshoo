@@ -8,15 +8,20 @@
 
 #ifndef DELIMS_SET
 # define DELIMS "<>&|;()"
-# define MONO_DELIM ";()"
+# define MONO_DELIM ";"
 # define MULTI_DELIM "<>&|"
 #endif
 
 void	free_token_list(t_token *head);
 
-static void	skip_whitespaces(char **line) {
-	while (isspace(**line))
+static void	skip_parenthesis_and_whitespaces(char **line, int *sublvl) {
+	while (**line == '(' || **line == ')' || isspace(**line)) {
+		if (**line == '(')
+			(*sublvl)++;
+		else if (**line == ')')
+			(*sublvl)--;
 		(*line)++;
+	}
 }
 
 static int	get_precedence(int type) {
@@ -30,7 +35,7 @@ static int	get_precedence(int type) {
 		return (3);
 }
 
-static int	get_multi_type(char current, int len) {
+static int	get_type(char current, int len) {
 	if (current == '<' && len == 1)
 		return (IN);
 	else if (current == '<' && len == 2)
@@ -45,15 +50,7 @@ static int	get_multi_type(char current, int len) {
 		return (OR);
 	else if (current == '&' && len == 2)
 		return (AND);
-	return (WRONG);
-}
-
-static int	get_mono_type(char current) {
-	if (current == '(')
-		return (OPEN_PAR);
-	else if (current == ')')
-		return (CLOS_PAR);
-	else if (current == ';')
+	else if (current == ';' && len == 1)
 		return (SEMI_COL);
 	return (WRONG);
 }
@@ -84,39 +81,29 @@ static size_t	word_len(char **line) {
 	return (i);
 }
 
-static t_token	*mono_delim_token(char **line) {
-	t_token	*new = malloc(sizeof(t_token));
-
-	if (!new)
-		return (NULL);
-	new->start = *line;
-	new->len = 1;
-	new->next = NULL;
-	new->type = get_mono_type(**line);
-	new->prec = get_precedence(new->type);
-	(*line)++;
-	return (new);
-}
-
-static t_token *multi_delim_token(char **line) {
+static t_token *delim_token(char **line, int sublvl) {
 	t_token	*new = malloc(sizeof(t_token));
 	char	current = **line;
 	int		len = 0;
 
 	if (!new)
 		return (NULL);
-	while ((*line)[len] == current)
-		len++;
+	if (current == ';')
+		len = 1;
+	else
+		while ((*line)[len] == current)
+			len++;
 	new->start = *line;
 	new->len = len;
 	new->next = NULL;
-	new->type = get_multi_type(current, len);
+	new->type = get_type(current, len);
 	new->prec = get_precedence(new->type);
+	new->sublvl = sublvl;
 	(*line) += len;
 	return (new);
 }
 
-static t_token	*word_token(char **line) {
+static t_token	*word_token(char **line, int sublvl) {
 	t_token *new;
 
 	new = malloc(sizeof(t_token));
@@ -127,34 +114,34 @@ static t_token	*word_token(char **line) {
 	new->next = NULL;
 	new->type = WORD;
 	new->prec = get_precedence(new->type);
+	new->sublvl = sublvl;
 	return (new);
 }
 
-static t_token	*token(char **line) {
-	if (strchr(MONO_DELIM, **line))
-		return (mono_delim_token(line));
-	else if (strchr(MULTI_DELIM, **line))
-		return (multi_delim_token(line));
+static t_token	*token(char **line, int sublvl) {
+	if (strchr(DELIMS, **line))
+		return (delim_token(line, sublvl));
 	else
-		return (word_token(line));
+		return (word_token(line, sublvl));
 }
 
 t_token	*lexer(char *line) {
-	t_token	*head;
-	t_token	*tail;
+	t_token	*head = NULL;;
+	t_token	*tail = NULL;;
+	int		sublvl = 0;
 
-	head = NULL;
-	tail = NULL;
-	skip_whitespaces(&line);
+	skip_parenthesis_and_whitespaces(&line, &sublvl);
 	if (!(*line))
 		return (NULL);
-	head = token(&line);
+	head = token(&line, sublvl);
 	if (!head)
 		return (NULL);
 	tail = head;
 	while (*line) {
-		skip_whitespaces(&line);
-		tail->next = token(&line);
+		skip_parenthesis_and_whitespaces(&line, &sublvl);
+		if (!(*line))
+			break ;
+		tail->next = token(&line, sublvl);
 		if (!tail->next)
 			return (free_token_list(head), NULL);
 		tail = tail->next;

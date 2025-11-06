@@ -6,53 +6,25 @@
 #include "token_and_node_types.h"
 
 t_node	*create_nodes(t_token *tok_list);
-void	free_token_array(t_token **tok_array);
 void	free_token_list(t_token *list);
-int		is_syntaxically_correct(t_token **tok_array);
+int		is_syntaxically_correct(t_token *toks);
 t_token	*lexer(char *line);
-t_token	**list_to_array(t_token *tok_list);
-void	set_token_types(t_token **tok_array);
-
-/*
-void	print_type(t_token *head) {
-	if (head->type == FILE_NAME)
-		write(1, "FILE_NAME\t", 10);
-	else
-		write(1, "\t\t", 2);
-}
-*/
-
-void	print_tok_list(t_token *head) {
-	while (head) {
-//		print_type(head);
-		write(1, head->start, head->len);
-		write(1, "\n", 1);
-		head = head->next;
-	}
-}
+void	set_token_types(t_token *toks);
 
 void	print_nodes(t_node *node);
-//NEEEEDS BETTER FREEEEES
-t_node	**parse_line(char *line) {
-	t_node	*nodes;
-	t_token	*tok_list;
-	t_token	**tok_array;
+void	print_colored_line(t_token *head);
 
-	tok_list = lexer(line);
-	if (!tok_list)
-		return (NULL);
-	tok_array = list_to_array(tok_list);
-	if (!tok_array)
-		return (free_token_list(tok_list), NULL);
-	if (!is_syntaxically_correct(tok_array))
-		return (free_token_array(tok_array), NULL);
-	set_token_types(tok_array);
-	nodes = create_nodes(tok_list);
-//	print_tok_list(tok_list);
-	print_nodes(nodes);
-	//free_token_array(tok_array);
-	if (!nodes)
-		return (NULL);
+t_node	*parse_line(char *line) {
+	t_token	*toks;
+	t_node	*ast;
 
-	return (NULL);
+	toks = lexer(line);
+	if (!toks)
+		return (NULL);
+	if (!is_syntaxically_correct(toks))
+		return (free_token_list(toks), NULL);
+	set_token_types(toks);
+	ast = create_nodes(toks);
+	free_token_list(toks);
+	return (ast);
 }

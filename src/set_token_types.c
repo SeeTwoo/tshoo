@@ -3,9 +3,9 @@
 
 int	is_redir(t_token *token);
 
-void	set_token_types(t_token **array) {
-	for (int i = 0; array[i]; i++) {
-		if (is_redir(array[i]))
-			array[i + 1]->type = FILE_NAME;
+void	set_token_types(t_token *toks) {
+	for (; toks; toks = toks->next) {
+		if (is_redir(toks))
+			toks->next->type = FILE_NAME;
 	}
 }

@@ -15,12 +15,6 @@ char	**tok_to_args(t_token *toks);
 
 void	print_type(int type);
 
-static t_token *skip_parenthesis(t_token **toks) {
-	while (*toks && ((*toks)->type == OPEN_PAR || (*toks)->type == CLOS_PAR))
-		*toks = (*toks)->next;
-	return (*toks);
-}
-
 static t_node	*new_cmd_node(t_token **toks) {
 	t_node	*new;
 
@@ -51,9 +45,6 @@ static t_node	*new_cmd_node(t_token **toks) {
 static t_node	*new_operator_node(t_token **toks, t_node *left) {
 	t_node	*new;
 
-	print_type((*toks)->type);
-	printf("\t\t%s", left->arg[0]);
-	printf("\n");
 	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);
@@ -74,19 +65,21 @@ t_node	*create_nodes(t_token *toks) {
 	t_node	*ast;
 	t_node	*leaf;
 
-	toks = skip_parenthesis(&toks);
 	ast = new_cmd_node(&toks);
 	leaf = ast;
 	if (!ast)
 		return (NULL);
 	for (; toks;) {
-		toks = skip_parenthesis(&toks);
-		if (ast->prec > toks->prec || ast->sublvl > toks->sublvl)
+		if (ast->prec > toks->prec || ast->sublvl > toks->sublvl) {
 			ast = new_operator_node(&toks, ast);
-		else if (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)
+			leaf = ast;
+		} else if (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME) {
 			leaf->right = new_cmd_node(&toks);
-		else
+			leaf = leaf->right;
+		} else {
 			leaf->right = new_operator_node(&toks, leaf->right);
+			leaf = leaf->right;
+		}
 	}
 	return (ast);
 }

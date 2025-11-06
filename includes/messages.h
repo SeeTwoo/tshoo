@@ -7,7 +7,9 @@
 # define FATAL_HD "\x1b[38;2;255;0;0m - tshoo: fatal - \x1b[0m"
 
 //general syntax
-# define UNCLOSED_PIPE "unclosed pipe"
+# define PIPE_BINARY "pipe is a binary operator, it needs an expression on both sides"
+# define AND_BINARY "and is a binary operator, it needs an expression on both sides"
+# define OR_BINARY "or is a binary operator, it needs an expression on both sides"
 # define UNCLOSED_PAR "unclosed parenthesis"
 # define REDIR_FILE_NAME "needs a file name to redirect"
 # define UNKNOWN_TOK "unknown token"

@@ -55,11 +55,12 @@ void	free_node(t_node *node) {
 	free(node);
 }
 
-void	free_node_array(t_node **nodes) {
-	for (int i = 0; nodes[i]; i++)
-		if (nodes[i])
-			free_node(nodes[i]);
-	free(nodes);
+void	free_ast(t_node *ast) {
+	if (!ast)
+		return ;
+	free_ast(ast->right);
+	free_ast(ast->left);
+	free_node(ast);
 }
 
 void	free_token_array(t_token **tok_array) {
