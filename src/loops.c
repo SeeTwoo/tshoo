@@ -45,11 +45,14 @@ int	process_line(char *line, t_env *env) {
 
 char	*get_script_line(int fd, t_env *env) {
 	char	*line = get_next_line(fd);
+	char	*aliased_line;
 
 	if (!line)
 		return NULL;
 	nullifythenewline(line);
-	return (aliasing(line, env->aliases));
+	aliased_line = aliasing(line, env->aliases);
+	free(line);
+	return (aliased_line);
 }
 
 int	script_loop(t_env *env, char *path) {
