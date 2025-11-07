@@ -20,6 +20,7 @@ struct s_node {
 	t_node	*right;
 	int		sublvl;
 	int		prec;
+	int		pipe[2];
 };
 
 #endif

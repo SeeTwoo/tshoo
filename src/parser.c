@@ -18,11 +18,6 @@ void	print_type(int type);
 static t_node	*new_cmd_node(t_token **toks) {
 	t_node	*new;
 
-	/*
-	write(1, (*toks)->start, (*toks)->len);
-	printf("\n");
-	*/
-
 	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);

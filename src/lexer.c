@@ -104,9 +104,8 @@ static t_token *delim_token(char **line, int sublvl) {
 }
 
 static t_token	*word_token(char **line, int sublvl) {
-	t_token *new;
+	t_token *new = malloc(sizeof(t_token));
 
-	new = malloc(sizeof(t_token));
 	if (!new)
 		return (NULL);
 	new->start = *line;

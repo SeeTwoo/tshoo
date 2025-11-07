@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "token.h"
@@ -7,7 +8,7 @@
 int	is_redir(t_token *token);
 
 size_t	arg_number(t_token *toks) {
-	size_t	i;
+	size_t	i = 0;
 
 	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
 		if (toks->type == WORD)

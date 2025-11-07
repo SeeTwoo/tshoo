@@ -41,6 +41,7 @@ static t_key_value *env_to_list(char **env) {
 
 int	init_env(t_env *env, char **arg_env) {
 	env->env_list = env_to_list(arg_env);
+	env->env_list = NULL;
 	env->history = NULL;
 	env->aliases = NULL;
 	env->should_exit = false;

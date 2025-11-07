@@ -15,7 +15,7 @@
 
 char	*aliasing(char *line, t_key_value *aliases);
 void	build_prompt(char *prompt, char *format, t_env *env);
-int		exec(t_node **nodes, t_env *env);
+int		exec(t_node *nodes, t_env *env);
 void	free_ast(t_node *ast);
 char	*get_next_line(int fd);
 t_node	*parse_line(char *line);
@@ -33,13 +33,12 @@ void	nullifythenewline(char *line) {
 int	process_line(char *line, t_env *env) {
 	t_node		*ast;
 
-	(void)env;
 	if (line[0] == '#')
 		return (0);
 	ast = parse_line(line);
 	if (!ast)
 		return (1);
-//	exec(nodes, env);
+	exec(ast, env);
 	free_ast(ast);
 	return (0);
 }
@@ -86,7 +85,6 @@ char	*get_interactive_line(char *prompt, t_env *env) {
 int	interactive_loop(t_env *env) {
 	char		prompt[256];
 	char		*line;
-
 
 	env->history = tshoo_init_hist();
 	while (!env->should_exit) {

@@ -9,6 +9,7 @@
 #include "env.h"
 #include "messages.h"
 #include "nodes.h"
+#include "token_and_node_types.h"
 
 typedef int	(*t_builtin)(t_node *cmd, t_env *env);
 
@@ -20,7 +21,7 @@ void		free_double_array(char **array);
 void		free_kv_list(t_key_value*);
 int			get_bin_path(t_node *node, char *path);
 char		*get_kv_value(t_key_value *list, char *key);
-void		print_nodes(t_node **nodes);
+void		print_nodes(t_node *nodes);
 int			setup_redirections(t_node *command);
 int			trim_command(t_node *node);
 
@@ -36,7 +37,7 @@ int			tshoo_style(t_node *cmd, t_env *env);
 int			tshoo_unalias(t_node *cmd, t_env *env);
 int			tshoo_unset(t_node *cmd, t_env *env);
 
-t_builtin	is_builtin(char *name) {
+static t_builtin	is_builtin(char *name) {
 	if (!name)
 		return (NULL);
 	if (strcmp(name, "exit") == 0)
@@ -58,7 +59,7 @@ t_builtin	is_builtin(char *name) {
 	return (NULL);
 }
 
-void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
+static void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	int	saved_stdin = dup(STDIN_FILENO);
 	int	saved_stdout = dup(STDOUT_FILENO);
 
@@ -72,22 +73,33 @@ void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	close(saved_stdout);
 }
 
-//protection of the pipe creation
-static int	get_pipes(t_node **nodes, int command_number) {
-	int	pipe_number;
-	int	temp[2];
+static int	get_pipes(t_node *ast, int in, int out) {
+	int	fds[2];
 
-	pipe_number = command_number - 1;
-	nodes[0]->in = STDIN_FILENO;
-	nodes[pipe_number]->out = STDOUT_FILENO;
-	for (int i = 0; i < pipe_number; i++) {
-		pipe(temp);
-		nodes[i]->out = temp[1];
-		nodes[i + 1]->in = temp[0];
+	if (ast->type == PIPE) {
+		pipe(fds);
+		get_pipes(ast->left, in, fds[1]);
+		get_pipes(ast->right, fds[0], out);
+	} else if (ast->type == CMD) {
+		ast->in = in;
+		ast->out = out;
+	} else {
+		get_pipes(ast->left, STDIN_FILENO, out);
+		get_pipes(ast->right, in, STDOUT_FILENO);
 	}
 	return (0);
 }
 
+static int	wait_ast(t_node *ast) {
+	if (!ast)
+		return (0);
+	if (ast->type == CMD)
+		waitpid(ast->pid, 0, 0);
+	wait_ast(ast->left);
+	wait_ast(ast->right);
+	return (0);
+}
+/*
 static void	clean_child_process(t_node **nodes, t_env *env) {
 	(void)nodes;
 	//free_node_array(nodes);
@@ -101,8 +113,9 @@ static void	error_child_process(t_node **nodes, t_env *env) {
 	clean_child_process(nodes, env);
 	exit(EXIT_FAILURE);
 }
+*/
 
-static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
+static int	exec_command(t_node *command, t_env *env) {
 	char	**cmd_args;
 	char	**cmd_env;
 
@@ -115,41 +128,59 @@ static int	exec_command(t_node *command, t_env *env, t_node **nodes) {
 	expand_command(command->arg, env->env_list);
 	trim_command(command);
 	if (setup_redirections(command) == 1)
-		error_child_process(nodes, env);
+		{};//error_child_process(nodes, env);
 	cmd_args = command->arg;
 	command->arg = NULL;
 	cmd_env = list_to_env(env->env_list);
-	clean_child_process(nodes, env);
+	//clean_child_process(nodes, env);
 	execve(cmd_args[0], cmd_args, cmd_env);
 	free_double_array(cmd_args);
 	free_double_array(cmd_env);
 	exit(EXIT_FAILURE);
 }
 
-int	exec(t_node **nodes, t_env *env) {
-	int			command_number;
-	int			ret = 0;
+int	exec_cmd_node(t_node *ast, t_env *env) {
 	t_builtin	func;
-	
-	command_number = 0;
-	while (nodes[command_number])
-		command_number++;
-	get_pipes(nodes, command_number);
-	for (int i = 0; i < command_number; i++) {
-		func = is_builtin(nodes[i]->arg[0]);
-		if (func)
-			exec_builtin(func, nodes[i], env);
-		else if (nodes[i]->arg[0] && strchr(nodes[i]->arg[0], '='))
-			assign_variable(env, nodes[i]->arg[0]);
-		else if (get_bin_path(nodes[i], get_kv_value(env->env_list, "PATH")) == 0)
-			ret = exec_command(nodes[i], env, nodes);
-		else
-			dprintf(2, "%s%s : %s\n", MSTK_HD, nodes[i]->arg[0], CMD_FND);
-		if (ret == 1)
-			env->should_exit = true;
+	int			ret = 0;
+
+	func = is_builtin(ast->arg[0]);
+	if (func)
+		exec_builtin(func, ast, env);
+	else if (ast->arg[0] && strchr(ast->arg[0], '='))
+		assign_variable(env, ast->arg[0]);
+	else if (get_bin_path(ast, get_kv_value(env->env_list, "PATH")) == 0)
+		ret = exec_command(ast, env);
+	else
+		dprintf(2, "%s%s : %s\n", MSTK_HD, ast->arg[0], CMD_FND);
+	if (ret == 1)
+		env->should_exit = true;
+	return (0);
+}
+
+int	exec_ast(t_node *ast, t_env *env) {
+	if (ast->type == SEMI_COL) {
+		exec_ast(ast->left, env);
+		exec_ast(ast->right, env);
+	} else if (ast->type == OR) {
+		if (exec_ast(ast->right, env) == 1)
+			exec_ast(ast->left, env);
+	} else if (ast->type == AND) {
+		if (exec_ast(ast->right, env) == 0)
+			exec_ast(ast->left, env);
+	} else if (ast->type == PIPE) {
+		exec_ast(ast->left, env);
+		exec_ast(ast->right, env);
+	} else if (ast->type == CMD) {
+		exec_cmd_node(ast, env);
 	}
+	return (0);
+}
+
+int	exec(t_node *ast, t_env *env) {
+	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
+	print_nodes(ast);
+	exec_ast(ast, env);
 	close_every_fd();
-	for (int i = 0; i < command_number; i++)
-		waitpid(nodes[i]->pid, &(env->last_exit), 0);
+	wait_ast(ast);
 	return (0);
 }
