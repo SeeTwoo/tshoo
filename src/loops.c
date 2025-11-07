@@ -92,8 +92,6 @@ int	interactive_loop(t_env *env) {
 		line = get_interactive_line(prompt, env);
 		if (!line)
 			return (tshoo_free_hist(env->history), 1);
-		if (strcmp(line, "exit") == 0)
-			env->should_exit = true;
 		process_line(line, env);
 		free(line);
 	}

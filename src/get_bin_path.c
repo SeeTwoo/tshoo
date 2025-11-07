@@ -41,10 +41,12 @@ static char	*find_command_full_path(char *paths, char *name) {
 int	get_bin_path(t_node *node, char *path_variable) {
 	char	*command_path;
 
-	if (!node || !path_variable || !(node->arg) || !(node->arg[0]))
+	if (!node || !(node->arg) || !(node->arg[0]))
 		return (1);
 	if (access(node->arg[0], X_OK) == 0)
 		return (0);
+	if (!path_variable)
+		return (1);
 	command_path = find_command_full_path(path_variable, node->arg[0]);
 	if (!command_path)
 		return (1);
