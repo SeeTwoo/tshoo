@@ -177,7 +177,6 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
-	print_nodes(ast);
 	exec_ast(ast, env, ast);
 	close_every_fd();
 	wait_ast(ast);

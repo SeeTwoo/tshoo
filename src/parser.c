@@ -70,7 +70,6 @@ t_node	*create_nodes(t_token *toks) {
 			leaf = ast;
 		} else if (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME) {
 			leaf->right = new_cmd_node(&toks);
-			leaf = leaf->right;
 		} else {
 			leaf->right = new_operator_node(&toks, leaf->right);
 			leaf = leaf->right;
