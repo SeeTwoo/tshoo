@@ -161,41 +161,56 @@ int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
 	return (0);
 }
 
-int	exec_ast(t_node *ast, t_env *env, t_node *ast_root);
+int	exec_ast(t_node *ast, t_env *env, t_node *ast_root, int sublvl);
 
-int	or_exec(t_node *ast, t_env *env, t_node *ast_root) {
-	exec_ast(ast->left, env, ast_root);
+int	or_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+	exec_ast(ast->left, env, ast_root, sublvl);
 	if (wait_ast(ast->left) == 0)
 		return (0);
-	exec_ast(ast->right, env, ast_root);
+	exec_ast(ast->right, env, ast_root, sublvl);
 	return (0);
 }
 
-int	and_exec(t_node *ast, t_env *env, t_node *ast_root) {
-	exec_ast(ast->left, env, ast_root);
+int	and_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+	exec_ast(ast->left, env, ast_root, sublvl);
 	if (wait_ast(ast->left) != 0)
 		return (0);
-	exec_ast(ast->right, env, ast_root);
+	exec_ast(ast->right, env, ast_root, sublvl);
 	return (0);
 }
 
-int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root) {
-	exec_ast(ast->left, env, ast_root);
+int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+	exec_ast(ast->left, env, ast_root, sublvl);
 	wait_ast(ast->left);
-	exec_ast(ast->right, env, ast_root);
+	exec_ast(ast->right, env, ast_root, sublvl);
 	return (0);
 }
 
-int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
-	if (ast->type == SEMI_COL) {
-		semi_col_exec(ast, env, ast_root);
+int	subshell(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+	int	pid = fork();
+
+	if (pid != 0)
+		return (wait_ast(ast), pid);
+	exec_ast(ast, env, ast_root, sublvl);
+	clean_child_process(ast_root, env);
+	exit(EXIT_SUCCESS);
+}
+
+int	exec_ast(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+	int	pid;
+
+	if (ast->sublvl > sublvl) {
+		pid = subshell(ast, env, ast_root, ast->sublvl);
+		waitpid(pid, 0, 0);
+	} else if (ast->type == SEMI_COL) {
+		semi_col_exec(ast, env, ast_root, sublvl);
 	} else if (ast->type == OR) {
-		or_exec(ast, env, ast_root);
+		or_exec(ast, env, ast_root, sublvl);
 	} else if (ast->type == AND) {
-		and_exec(ast, env, ast_root);
+		and_exec(ast, env, ast_root, sublvl);
 	} else if (ast->type == PIPE) {
-		exec_ast(ast->left, env, ast_root);
-		exec_ast(ast->right, env, ast_root);
+		exec_ast(ast->left, env, ast_root, sublvl);
+		exec_ast(ast->right, env, ast_root, sublvl);
 	} else if (ast->type == CMD) {
 		exec_cmd_node(ast, env, ast_root);
 		if (ast->in != -1 && ast->in != 1 && ast->in != 0)
@@ -208,7 +223,7 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
-	exec_ast(ast, env, ast);
+	exec_ast(ast, env, ast, 0);
 	wait_ast(ast);
 	return (0);
 }
