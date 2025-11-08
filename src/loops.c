@@ -88,6 +88,7 @@ char	*get_interactive_line(char *prompt, t_env *env) {
 int	interactive_loop(t_env *env) {
 	char		prompt[256];
 	char		*line;
+	t_node		*ast;
 
 	env->history = tshoo_init_hist();
 	while (!env->should_exit) {
@@ -95,8 +96,16 @@ int	interactive_loop(t_env *env) {
 		line = get_interactive_line(prompt, env);
 		if (!line)
 			return (tshoo_free_hist(env->history), 1);
-		process_line(line, env);
+		if (line[0] == '#') {
+			free(line);
+			continue ;
+		}
+		ast = parse_line(line);
 		free(line);
+		if (!ast)
+			continue ;
+		exec(ast, env);
+		free_ast(ast);
 	}
 	tshoo_free_hist(env->history);
 	return (0);
