@@ -14,7 +14,7 @@
 typedef int	(*t_builtin)(t_node *cmd, t_env *env);
 
 void		assign_variable(t_env *env, char *new);
-void		close_every_fd(void);
+void		close_every_fd(t_node *ast);
 char		**list_to_env(t_key_value *env);
 int			expand_command(char **cmd, t_key_value *env);
 void		free_ast(t_node *ast);
@@ -23,6 +23,7 @@ void		free_kv_list(t_key_value*);
 int			get_bin_path(t_node *node, char *path);
 char		*get_kv_value(t_key_value *list, char *key);
 void		print_nodes(t_node *nodes);
+void		safer_close(int *fd);
 int			setup_redirections(t_node *command);
 int			trim_command(t_node *node);
 
@@ -70,8 +71,8 @@ static void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	func(node, env);
 	dup2(saved_stdin, STDIN_FILENO);
 	dup2(saved_stdout, STDOUT_FILENO);
-	close(saved_stdin);
-	close(saved_stdout);
+	safer_close(&saved_stdin);
+	safer_close(&saved_stdout);
 }
 
 static int	get_pipes(t_node *ast, int in, int out) {
@@ -102,11 +103,11 @@ static int	wait_ast(t_node *ast) {
 }
 
 static void	clean_child_process(t_node *nodes, t_env *env) {
+	close_every_fd(nodes);
 	free_ast(nodes);
 	tshoo_free_hist(env->history);
 	free_kv_list(env->aliases);
 	free_kv_list(env->env_list);
-	close_every_fd();
 }
 
 static void	error_child_process(t_node *nodes, t_env *env) {
@@ -171,6 +172,10 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 		exec_ast(ast->right, env, ast_root);
 	} else if (ast->type == CMD) {
 		exec_cmd_node(ast, env, ast_root);
+		if (ast->in != -1 && ast->in != 1 && ast->in != 0)
+			safer_close(&ast->in);
+		if (ast->out != -1 && ast->out != 1 && ast->out != 0)
+			safer_close(&ast->out);
 	}
 	return (0);
 }
@@ -178,7 +183,7 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
 	exec_ast(ast, env, ast);
-	close_every_fd();
+	//close_every_fd();
 	wait_ast(ast);
 	return (0);
 }

@@ -47,6 +47,8 @@ static t_node	*new_operator_node(t_token **toks, t_node *left) {
 	new->pid = -1;
 	new->in_redir = NULL;
 	new->out_redir = NULL;
+	new->in = -1;
+	new->out = -1;
 	new->sublvl = (*toks)->sublvl;
 	new->type = (*toks)->type;
 	new->prec = (*toks)->prec;

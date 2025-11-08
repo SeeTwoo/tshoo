@@ -7,16 +7,20 @@
 #include "token.h"
 #include "redirections.h"
 
-void	close_all_fds(int *fds, int command_number) {
-	for (int i = 0; i < command_number; i++) {
-		close(fds[i * 2]);
-		close(fds[i * 2 + 1]);
-	}
+void	safer_close(int *fd) {
+	if (*fd < 3)
+		return ;
+	close(*fd);
+	*fd = -1;
 }
 
-void	close_every_fd(void) {
-	for (int i = 3; i <= 1023; i++)
-		close(i);
+void	close_every_fd(t_node *ast) {
+	if (!ast)
+		return ;
+	safer_close(&ast->in);
+	safer_close(&ast->out);
+	close_every_fd(ast->right);
+	close_every_fd(ast->left);
 }
 
 void	free_double_array(char **array) {
