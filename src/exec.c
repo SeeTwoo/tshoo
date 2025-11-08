@@ -93,13 +93,17 @@ static int	get_pipes(t_node *ast, int in, int out) {
 }
 
 static int	wait_ast(t_node *ast) {
+	int	status = -1;
+
 	if (!ast)
-		return (0);
-	if (ast->type == CMD)
-		waitpid(ast->pid, 0, 0);
+		return (-1);
+	if (ast->type == CMD) {
+		waitpid(ast->pid, &status, 0);
+		return (status);
+	}
 	wait_ast(ast->left);
-	wait_ast(ast->right);
-	return (0);
+	status = wait_ast(ast->right);
+	return (status);
 }
 
 static void	clean_child_process(t_node *nodes, t_env *env) {
@@ -157,16 +161,38 @@ int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
 	return (0);
 }
 
+int	exec_ast(t_node *ast, t_env *env, t_node *ast_root);
+
+int	or_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->left, env, ast_root);
+	if (wait_ast(ast->left) == 0)
+		return (0);
+	exec_ast(ast->right, env, ast_root);
+	return (0);
+}
+
+int	and_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->left, env, ast_root);
+	if (wait_ast(ast->left) != 0)
+		return (0);
+	exec_ast(ast->right, env, ast_root);
+	return (0);
+}
+
+int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->left, env, ast_root);
+	wait_ast(ast->left);
+	exec_ast(ast->right, env, ast_root);
+	return (0);
+}
+
 int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 	if (ast->type == SEMI_COL) {
-		exec_ast(ast->left, env, ast_root);
-		exec_ast(ast->right, env, ast_root);
+		semi_col_exec(ast, env, ast_root);
 	} else if (ast->type == OR) {
-		if (exec_ast(ast->right, env, ast_root) == 1)
-			exec_ast(ast->left, env, ast_root);
+		or_exec(ast, env, ast_root);
 	} else if (ast->type == AND) {
-		if (exec_ast(ast->right, env, ast_root) == 0)
-			exec_ast(ast->left, env, ast_root);
+		and_exec(ast, env, ast_root);
 	} else if (ast->type == PIPE) {
 		exec_ast(ast->left, env, ast_root);
 		exec_ast(ast->right, env, ast_root);
@@ -183,7 +209,6 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
 	exec_ast(ast, env, ast);
-	//close_every_fd();
 	wait_ast(ast);
 	return (0);
 }
