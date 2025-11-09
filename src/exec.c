@@ -192,6 +192,7 @@ int	subshell(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
 	if (pid != 0)
 		return (wait_ast(ast), pid);
 	exec_ast(ast, env, ast_root, sublvl);
+	wait_ast(ast);
 	clean_child_process(ast_root, env);
 	exit(EXIT_SUCCESS);
 }
