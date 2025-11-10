@@ -6,15 +6,6 @@
 #include "redirections.h"
 #include "token_and_node_types.h"
 
-/*
-void	print_type(t_token *head) {
-	if (head->type == FILE_NAME)
-		write(1, "FILE_NAME\t", 10);
-	else
-		write(1, "\t\t", 2);
-}
-*/
-
 static void	print_type(int type) {
 	if (type == CMD)
 		dprintf(2, "CMD");
@@ -40,16 +31,9 @@ static void	print_type(int type) {
 
 void	print_colored_line(t_token *head) {
 	while (head) {
-		printf("\x1b[%dm", head->sublvl + 31);
-		fflush(stdout);
-		write(1, head->start, head->len);
-		fflush(stdout);
-		write(1, "\x1b[0m\t\t", 6);
-		fflush(stdout);
+		dprintf(2, "\x1b[%dm%s\x1b[0m\t\t", head->sublvl + 31, head->start);
 		print_type(head->type);
-		fflush(stdout);
-		write(1, "\n", 1);
-		fflush(stdout);
+		dprintf(2, "\n");
 		head = head->next;
 	}
 	write(1, "\n", 1);
@@ -58,8 +42,7 @@ void	print_colored_line(t_token *head) {
 void	print_tok_list(t_token *head) {
 	while (head) {
 //		print_type(head);
-		write(1, head->start, head->len);
-		write(1, "\n", 1);
+		dprintf(2, "%s\n", head->start);
 		head = head->next;
 	}
 }

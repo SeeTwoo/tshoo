@@ -79,6 +79,7 @@ void	free_token_list(t_token *head) {
 	while (head) {
 		temp = head;
 		head = head->next;
+		free(temp->start);
 		free(temp);
 	}
 }

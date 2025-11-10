@@ -7,7 +7,6 @@ typedef struct s_token	t_token;
 
 struct s_token {
 	char	*start;
-	size_t	len;
 	int		type;
 	int		prec;
 	int		sublvl;

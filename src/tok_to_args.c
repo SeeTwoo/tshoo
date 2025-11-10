@@ -27,7 +27,7 @@ char	**tok_to_args(t_token *toks) {
 		return (NULL);
 	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
 		if (toks->type == WORD) {
-			args[i] = strndup(toks->start, toks->len);
+			args[i] = strdup(toks->start);
 			i++;
 		}
 		toks = toks->next;

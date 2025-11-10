@@ -67,17 +67,16 @@ static int	quote_to_quote_len(char *line) {
 	return (i);
 }
 
-static size_t	word_len(char **line) {
+static size_t	word_len(char *line) {
 	size_t	i;
 	
 	i = 0;
-	while (*(*line + i) && !isspace(*(*line + i)) && !strchr(DELIMS, *(*line + i))) {
-		if ((*line)[i] == '\'' || (*line)[i] == '\"')
-			i += quote_to_quote_len(&(*line)[i]);
+	while (line[i] && !isspace(line[i]) && !strchr(DELIMS, line[i])) {
+		if (line[i] == '\'' || line[i] == '\"')
+			i += quote_to_quote_len(line + i);
 		else
 			i++;
 	}
-	(*line) += i;
 	return (i);
 }
 
@@ -93,8 +92,9 @@ static t_token *delim_token(char **line, int sublvl) {
 	else
 		while ((*line)[len] == current)
 			len++;
-	new->start = *line;
-	new->len = len;
+	new->start = strndup(*line, len);
+	if (!new->start)
+		return (free(new), NULL);
 	new->next = NULL;
 	new->type = get_type(current, len);
 	new->prec = get_precedence(new->type);
@@ -105,15 +105,18 @@ static t_token *delim_token(char **line, int sublvl) {
 
 static t_token	*word_token(char **line, int sublvl) {
 	t_token *new = malloc(sizeof(t_token));
+	size_t	len = word_len(*line);
 
 	if (!new)
 		return (NULL);
-	new->start = *line;
-	new->len = word_len(line);
+	new->start = strndup(*line, len);
+	if (!new->start)
+		return (free(new), NULL);
 	new->next = NULL;
 	new->type = WORD;
 	new->prec = get_precedence(new->type);
 	new->sublvl = sublvl;
+	(*line) += len;
 	return (new);
 }
 

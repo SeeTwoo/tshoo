@@ -26,9 +26,9 @@ int	is_syntaxically_correct(t_token *toks) {
 		if (is_pipe(toks) && (toks->next == NULL || !is_word(toks->next)))
 			return (dprintf(2, "%s%s\n", MSTK_HD, PIPE_BINARY), 0);
 		if (is_redir(toks) && (toks->next == NULL || !is_word(toks->next)))
-			return (dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)toks->len, toks->start, REDIR_FILE_NAME), 0);
+			return (dprintf(2, "%s[%s] %s\n", MSTK_HD, toks->start, REDIR_FILE_NAME), 0);
 		if (is_wrong_token(toks))
-			return (dprintf(2, "%s[%.*s] %s\n", MSTK_HD, (int)toks->len, toks->start, UNKNOWN_TOK), 0);
+			return (dprintf(2, "%s[%s] %s\n", MSTK_HD, toks->start, UNKNOWN_TOK), 0);
 	}
 	return (1);
 }
