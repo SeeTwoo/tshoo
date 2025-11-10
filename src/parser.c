@@ -15,45 +15,32 @@ char	**tok_to_args(t_token *toks);
 
 void	print_type(int type);
 
-static t_node	*new_cmd_node(t_token **toks) {
-	t_node	*new;
+static AST	*new_cmd_node(t_token **toks) {
+	AST	*new = malloc(sizeof(t_node));
 
-	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);
-	new->arg = tok_to_args(*toks);
-	if (!new->arg)
+	new->kind = CMD;
+	new->subshell = false;
+	new->as.cmd.arg = tok_to_args(*toks);
+	if (!new->as.cmd.arg)
 		return (free(new), NULL);
-	if (get_redirections(new, *toks) == 1)
+	if (get_redirections(&(as.cmd), *toks) == 1)
 		return (free_double_array(new->arg), free(new), NULL);
-	new->type = CMD;
-	new->pid = -1;
-	new->left = NULL;
-	new->right = NULL;
-	new->sublvl = (*toks)->sublvl;
-	new->prec = 3;
 	while (*toks && (is_redir(*toks) || (*toks)->type == WORD || (*toks)->type == FILE_NAME))
 		*toks = (*toks)->next;
 	return (new);
 }
 
-static t_node	*new_operator_node(t_token **toks, t_node *left) {
-	t_node	*new;
+static t_node	*new_pipe_node(t_token **toks, t_node *left) {
+	AST	*new = malloc(sizeof(t_node));
 
-	new = malloc(sizeof(t_node));
 	if (!new)
 		return (NULL);
-	new->arg = NULL;
-	new->pid = -1;
-	new->in_redir = NULL;
-	new->out_redir = NULL;
-	new->in = -1;
-	new->out = -1;
-	new->sublvl = (*toks)->sublvl;
-	new->type = (*toks)->type;
-	new->prec = (*toks)->prec;
-	new->left = left;
-	new->right = NULL;
+	new->kind = PIPE;
+	new->subshell = false;
+	new->as.operator.left = left;
+	new->as.operator.right = NULL;
 	*toks = (*toks)->next;
 	return (new);
 }

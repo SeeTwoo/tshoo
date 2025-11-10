@@ -6,10 +6,9 @@
 typedef struct s_token	t_token;
 
 struct s_token {
-	char	*start;
+	char	*lexeme;
 	int		type;
-	int		prec;
-	int		sublvl;
+	t_token	*prev;
 	t_token	*next;
 };
 

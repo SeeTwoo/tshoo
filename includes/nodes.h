@@ -23,4 +23,37 @@ struct s_node {
 	int		pipe[2];
 };
 
+typedef enum {
+	CMD,
+	PIPE,
+	AND,
+	OR,
+	LST
+} node_kind;
+
+typedef struct s_ast AST;
+
+typedef struct {
+	AST		*left;
+	AST		*right;
+} binary_node;
+
+typedef struct {
+	char	**arg;
+	int		in;
+	int		out;
+	t_redir	*in_redir;
+	t_redir	*out_redir;
+	pid_t	pid;
+} cmd_node;
+
+typedef struct {
+	node_kind	kind;
+	bool		subshell;
+	union {
+		cmd_node	cmd;
+		binary_node	operator;
+	} as;
+} AST;
+
 #endif

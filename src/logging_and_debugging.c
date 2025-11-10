@@ -31,7 +31,7 @@ static void	print_type(int type) {
 
 void	print_colored_line(t_token *head) {
 	while (head) {
-		dprintf(2, "\x1b[%dm%s\x1b[0m\t\t", head->sublvl + 31, head->start);
+		dprintf(2, "\x1b[%dm%s\x1b[0m\t\t", head->sublvl + 31, head->lexeme);
 		print_type(head->type);
 		dprintf(2, "\n");
 		head = head->next;
@@ -42,7 +42,7 @@ void	print_colored_line(t_token *head) {
 void	print_tok_list(t_token *head) {
 	while (head) {
 //		print_type(head);
-		dprintf(2, "%s\n", head->start);
+		dprintf(2, "%s\n", head->lexeme);
 		head = head->next;
 	}
 }

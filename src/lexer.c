@@ -8,52 +8,18 @@
 
 #ifndef DELIMS_SET
 # define DELIMS "<>&|;()"
-# define MONO_DELIM ";"
+# define MONO_DELIM "();"
 # define MULTI_DELIM "<>&|"
 #endif
 
 void	free_token_list(t_token *head);
 
-static void	skip_parenthesis_and_whitespaces(char **line, int *sublvl) {
-	while (**line == '(' || **line == ')' || isspace(**line)) {
-		if (**line == '(')
-			(*sublvl)++;
-		else if (**line == ')')
-			(*sublvl)--;
+static void	skip_whitespaces(char **line, int *sublvl) {
+	while (isspace(**line)) {
 		(*line)++;
-	}
 }
 
-static int	get_precedence(int type) {
-	if (type == SEMI_COL)
-		return (0);
-	else if (type == AND || type == OR)
-		return (1);
-	else if (type == PIPE)
-		return (2);
-	else
-		return (3);
-}
-
-static int	get_type(char current, int len) {
-	if (current == '<' && len == 1)
-		return (IN);
-	else if (current == '<' && len == 2)
-		return (HD);
-	else if (current == '>' && len == 1)
-		return (TRUNC);
-	else if (current == '>' && len == 2)
-		return (APPEND);
-	else if (current == '|' && len == 1)
-		return (PIPE);
-	else if (current == '|' && len == 2)
-		return (OR);
-	else if (current == '&' && len == 2)
-		return (AND);
-	else if (current == ';' && len == 1)
-		return (SEMI_COL);
-	return (WRONG);
-}
+int	get_type(char current, int len);
 
 static int	quote_to_quote_len(char *line) {
 	int		i = 0;
@@ -80,73 +46,98 @@ static size_t	word_len(char *line) {
 	return (i);
 }
 
-static t_token *delim_token(char **line, int sublvl) {
+static size_t	delim_len (char *line) {
+	size_t	i = 0;
+
+	if (strchr(MONO_DELIM, *line))
+		return (1);
+	while (line[i] == *line)
+		i++;
+	return (i);
+}
+
+static t_token *delim_token(char **line, t_token *prev) {
 	t_token	*new = malloc(sizeof(t_token));
-	char	current = **line;
-	int		len = 0;
+	int		len = delim_len(*line);
 
 	if (!new)
 		return (NULL);
-	if (current == ';')
-		len = 1;
-	else
-		while ((*line)[len] == current)
-			len++;
-	new->start = strndup(*line, len);
-	if (!new->start)
+	new->lexeme = strndup(*line, len);
+	if (!new->lexeme)
 		return (free(new), NULL);
+	new->type = get_type(**line, len);
 	new->next = NULL;
-	new->type = get_type(current, len);
-	new->prec = get_precedence(new->type);
-	new->sublvl = sublvl;
+	new->prev = prev;
 	(*line) += len;
 	return (new);
 }
 
-static t_token	*word_token(char **line, int sublvl) {
+static t_token	*word_token(char **line, t_token *prev) {
 	t_token *new = malloc(sizeof(t_token));
 	size_t	len = word_len(*line);
 
 	if (!new)
 		return (NULL);
-	new->start = strndup(*line, len);
-	if (!new->start)
+	new->lexeme = strndup(*line, len);
+	if (!new->lexeme)
 		return (free(new), NULL);
-	new->next = NULL;
 	new->type = WORD;
-	new->prec = get_precedence(new->type);
-	new->sublvl = sublvl;
+	new->next = NULL;
+	new->prev = prev;
 	(*line) += len;
 	return (new);
 }
 
-static t_token	*token(char **line, int sublvl) {
+static t_token	*token(char **line, t_token *prev) {
 	if (strchr(DELIMS, **line))
-		return (delim_token(line, sublvl));
+		return (delim_token(line, prev));
 	else
-		return (word_token(line, sublvl));
+		return (word_token(line, prev));
 }
 
 t_token	*lexer(char *line) {
 	t_token	*head = NULL;;
 	t_token	*tail = NULL;;
-	int		sublvl = 0;
 
-	skip_parenthesis_and_whitespaces(&line, &sublvl);
+	skip_whitespaces(&line);
 	if (!(*line))
 		return (NULL);
-	head = token(&line, sublvl);
+	head = token(&line, NULL);
 	if (!head)
 		return (NULL);
 	tail = head;
 	while (*line) {
-		skip_parenthesis_and_whitespaces(&line, &sublvl);
+		skip_whitespaces(&line);
 		if (!(*line))
 			break ;
-		tail->next = token(&line, sublvl);
+		tail->next = token(&line, tail);
 		if (!tail->next)
 			return (free_token_list(head), NULL);
 		tail = tail->next;
 	}
 	return (head);
+}
+
+static int	get_type(char current, int len) {
+	if (current == '<' && len == 1)
+		return (IN);
+	else if (current == '<' && len == 2)
+		return (HD);
+	else if (current == '>' && len == 1)
+		return (TRUNC);
+	else if (current == '>' && len == 2)
+		return (APPEND);
+	else if (current == '|' && len == 1)
+		return (PIPE);
+	else if (current == '|' && len == 2)
+		return (OR);
+	else if (current == '&' && len == 2)
+		return (AND);
+	else if (current == ';' && len == 1)
+		return (SEMI_COL);
+	else if (current == '(' && len == 1)
+		return (OPEN_PAR);
+	else if (current == ')' && len == 1)
+		return (CLOSE_PAR);
+	return (WRONG);
 }

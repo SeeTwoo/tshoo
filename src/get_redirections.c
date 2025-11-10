@@ -24,7 +24,7 @@ void	add_redir(t_redir **tail, t_redir **head, t_token *toks) {
 		*tail = (*tail)->next;
 	}
 	new->name = NULL;
-	new->name = strdup(toks->next->start);
+	new->name = strdup(toks->next->lexeme);
 	///better freeeing pls
 	new->type = toks->type;
 	new->next = NULL;
