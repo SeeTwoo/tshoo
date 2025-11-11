@@ -1,7 +1,9 @@
 #ifndef TOKEN_AND_NODE_TYPES_H
 # define TOKEN_AND_NODE_TYPES_H
 
-enum e_token_and_node_types {
+typedef enum enum_kinds	e_kind;
+
+enum enum_kinds {
 	CMD,
 	WORD,
 	PIPE,

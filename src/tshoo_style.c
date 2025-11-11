@@ -17,9 +17,9 @@ int	display_style(t_env *env) {
 int	tshoo_style(t_node *cmd, t_env *env) {
 	char	**args;
 
-	if (!(cmd->arg[1]))
+	if (!(cmd->as.cmd.arg[1]))
 		return (display_style(env));
-	args = cmd->arg+ 1;
+	args = cmd->as.cmd.arg+ 1;
 	for (int i = 0; args[i]; i++) {
 		if (strcmp(args[i], FRIENDLY) == 0)
 			env->style = E_FRIENDLY;

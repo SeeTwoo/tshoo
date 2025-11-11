@@ -17,10 +17,13 @@ void	safer_close(int *fd) {
 void	close_every_fd(t_node *ast) {
 	if (!ast)
 		return ;
-	safer_close(&ast->in);
-	safer_close(&ast->out);
-	close_every_fd(ast->right);
-	close_every_fd(ast->left);
+	if (ast->kind == CMD) {
+		safer_close(&ast->as.cmd.in);
+		safer_close(&ast->as.cmd.out);
+	} else {
+		close_every_fd(ast->as.binary.right);
+		close_every_fd(ast->as.binary.left);
+	}
 }
 
 void	free_double_array(char **array) {
@@ -50,20 +53,20 @@ void	free_list_redir(t_redir *head) {
 void	free_node(t_node *node) {
 	if (!node)
 		return ;
-	if (node->arg)
-		free_double_array(node->arg);
-	if (node->in_redir)
-		free_list_redir(node->in_redir);
-	if (node->out_redir)
-		free_list_redir(node->out_redir);
+	if (node->as.cmd.arg)
+		free_double_array(node->as.cmd.arg);
+	if (node->as.cmd.in_redir)
+		free_list_redir(node->as.cmd.in_redir);
+	if (node->as.cmd.out_redir)
+		free_list_redir(node->as.cmd.out_redir);
 	free(node);
 }
 
 void	free_ast(t_node *ast) {
 	if (!ast)
 		return ;
-	free_ast(ast->right);
-	free_ast(ast->left);
+	free_ast(ast->as.binary.right);
+	free_ast(ast->as.binary.left);
 	free_node(ast);
 }
 

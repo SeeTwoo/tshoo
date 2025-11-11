@@ -23,14 +23,14 @@ int	tshoo_echo(t_node *command, t_env *env) {
 	bool	dash_n = false;
 
 	(void)env;
-	args = set_options(command->arg + 1, &dash_n);
+	args = set_options(command->as.cmd.arg + 1, &dash_n);
 	while (*args) {
 		write(1, *args, strlen(*args));
 		if (args[1])
 			write(1, " ", 1);
 		args++;
 	}
-	if (command->arg[1] && strncmp(command->arg[1], "-n", 2) == 0)
+	if (command->as.cmd.arg[1] && strncmp(command->as.cmd.arg[1], "-n", 2) == 0)
 		return (0);
 	write(1, "\n", 1);
 	return (0);

@@ -18,15 +18,13 @@ SRC_FILES = aliasing.c \
 			init_env.c \
 			is_token_type.c \
 			lexer.c \
-			logging_and_debugging.c \
 			loops.c \
 			main.c \
-			parser.c \
 			parsing.c \
+			recursive_descent.c \
 			set_options.c \
 			set_token_types.c \
 			setup_redirections.c \
-			syntax.c \
 			tok_to_args.c \
 			trim_command.c \
 			tshoo_alias.c \
