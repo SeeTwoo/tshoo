@@ -55,13 +55,13 @@ static int	setup_out_redirs(t_redir *head) {
 }
 
 int	setup_redirections(t_node *node) {
-	if (setup_pipe(node->in, STDIN_FILENO) == -1)
+	if (setup_pipe(node->as.cmd.in, STDIN_FILENO) == -1)
 		return (1);
-	if (setup_in_redirs(node->in_redir) == 1)
+	if (setup_in_redirs(node->as.cmd.in_redir) == 1)
 		return (1);
-	if (setup_out_redirs(node->out_redir) == 1)
+	if (setup_out_redirs(node->as.cmd.out_redir) == 1)
 		return (1);
-	if (setup_pipe(node->out, STDOUT_FILENO) == -1)
+	if (setup_pipe(node->as.cmd.out, STDOUT_FILENO) == -1)
 		return (1);
 	return (0);
 }

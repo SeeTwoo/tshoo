@@ -3,11 +3,13 @@
 
 # include <stddef.h>
 
+# include "token_and_node_types.h"
+
 typedef struct s_token	t_token;
 
 struct s_token {
 	char	*lexeme;
-	int		type;
+	e_kind	type;
 	t_token	*prev;
 	t_token	*next;
 };

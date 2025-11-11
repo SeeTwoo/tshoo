@@ -14,12 +14,34 @@
 
 void	free_token_list(t_token *head);
 
-static void	skip_whitespaces(char **line, int *sublvl) {
-	while (isspace(**line)) {
+static void	skip_whitespaces(char **line) {
+	while (isspace(**line))
 		(*line)++;
 }
 
-int	get_type(char current, int len);
+static int	get_type(char current, int len) {
+	if (current == '<' && len == 1)
+		return (IN);
+	else if (current == '<' && len == 2)
+		return (HD);
+	else if (current == '>' && len == 1)
+		return (TRUNC);
+	else if (current == '>' && len == 2)
+		return (APPEND);
+	else if (current == '|' && len == 1)
+		return (PIPE);
+	else if (current == '|' && len == 2)
+		return (OR);
+	else if (current == '&' && len == 2)
+		return (AND);
+	else if (current == ';' && len == 1)
+		return (SEMI_COL);
+	else if (current == '(' && len == 1)
+		return (OPEN_PAR);
+	else if (current == ')' && len == 1)
+		return (CLOS_PAR);
+	return (WRONG);
+}
 
 static int	quote_to_quote_len(char *line) {
 	int		i = 0;
@@ -116,28 +138,4 @@ t_token	*lexer(char *line) {
 		tail = tail->next;
 	}
 	return (head);
-}
-
-static int	get_type(char current, int len) {
-	if (current == '<' && len == 1)
-		return (IN);
-	else if (current == '<' && len == 2)
-		return (HD);
-	else if (current == '>' && len == 1)
-		return (TRUNC);
-	else if (current == '>' && len == 2)
-		return (APPEND);
-	else if (current == '|' && len == 1)
-		return (PIPE);
-	else if (current == '|' && len == 2)
-		return (OR);
-	else if (current == '&' && len == 2)
-		return (AND);
-	else if (current == ';' && len == 1)
-		return (SEMI_COL);
-	else if (current == '(' && len == 1)
-		return (OPEN_PAR);
-	else if (current == ')' && len == 1)
-		return (CLOSE_PAR);
-	return (WRONG);
 }

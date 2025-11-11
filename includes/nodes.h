@@ -5,55 +5,31 @@
 #include <sys/types.h>
 
 #include "redirections.h"
+#include "token_and_node_types.h"
 
-typedef struct s_node	t_node;
+typedef struct s_node t_node;
 
-struct s_node {
-	char	**arg;
-	int		type;
-	int		in;
-	int		out;
-	t_redir	*in_redir;
-	t_redir	*out_redir;
-	pid_t	pid;
-	t_node	*left;
-	t_node	*right;
-	int		sublvl;
-	int		prec;
-	int		pipe[2];
-};
-
-typedef enum {
-	CMD,
-	PIPE,
-	AND,
-	OR,
-	LST
-} node_kind;
-
-typedef struct s_ast AST;
-
-typedef struct {
-	AST		*left;
-	AST		*right;
+typedef struct s_binary_node {
+	t_node		*left;
+	t_node		*right;
 } binary_node;
 
-typedef struct {
+typedef struct s_cmd_node {
 	char	**arg;
 	int		in;
 	int		out;
 	t_redir	*in_redir;
 	t_redir	*out_redir;
 	pid_t	pid;
-} cmd_node;
+} t_cmd_node;
 
-typedef struct {
-	node_kind	kind;
+struct s_node {
+	e_kind	kind;
 	bool		subshell;
 	union {
-		cmd_node	cmd;
-		binary_node	operator;
+		t_cmd_node	cmd;
+		binary_node	binary;
 	} as;
-} AST;
+};
 
 #endif

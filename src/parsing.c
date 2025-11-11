@@ -5,10 +5,10 @@
 #include "token.h"
 #include "token_and_node_types.h"
 
-t_node	*create_nodes(t_token *tok_list);
 void	free_token_list(t_token *list);
 int		is_syntaxically_correct(t_token *toks);
 t_token	*lexer(char *line);
+t_node	*recursive_descent(t_token *toks, t_node *tree);
 void	set_token_types(t_token *toks);
 
 void	print_nodes(t_node *node);
@@ -21,10 +21,7 @@ t_node	*parse_line(char *line) {
 	toks = lexer(line);
 	if (!toks)
 		return (NULL);
-	if (!is_syntaxically_correct(toks))
-		return (free_token_list(toks), NULL);
-	set_token_types(toks);
-	ast = create_nodes(toks);
+	ast = recursive_descent(toks, NULL);
 	free_token_list(toks);
 	return (ast);
 }

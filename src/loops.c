@@ -17,11 +17,10 @@ char	*aliasing(char *line, t_key_value *aliases);
 void	build_prompt(char *prompt, char *format, t_env *env);
 int		exec(t_node *nodes, t_env *env);
 void	free_ast(t_node *ast);
-char	*get_next_line(int fd);
 t_node	*parse_line(char *line);
 void	print_nodes(t_node **array);
 
-void	nullifythenewline(char *line) {
+static void	nullifythenewline(char *line) {
 	char	*nl;
 
 	nl = strrchr(line, '\n');
@@ -30,7 +29,7 @@ void	nullifythenewline(char *line) {
 	*nl = '\0';
 }
 
-int	process_line(char *line, t_env *env) {
+static int	process_line(char *line, t_env *env) {
 	t_node		*ast;
 
 	if (line[0] == '#')
@@ -43,7 +42,39 @@ int	process_line(char *line, t_env *env) {
 	return (0);
 }
 
-char	*get_script_line(int fd, t_env *env) {
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 1024
+#endif
+
+static char	*get_next_line(int fd) {
+	static char	buf[BUFFER_SIZE + 1];
+	char		*line = NULL;
+	ssize_t		bytes;
+	char		*nl;
+	size_t		len = 0;
+
+	while (1) {
+		if (!buf[0]) {
+			bytes = read(fd, buf, BUFFER_SIZE);
+			if (bytes <= 0)
+				return (line);
+			buf[bytes] = '\0';
+		}
+		nl = strchr(buf, '\n');
+		size_t	part_len = nl ? (size_t)(nl - buf + 1) : strlen(buf);
+		line = realloc(line, len + part_len + 1);
+		memcpy(line + len, buf, part_len);
+		len += part_len;
+		line[len] = '\0';
+		if (nl) {
+			memmove(buf, nl + 1, strlen(nl + 1) + 1);
+			return (line);
+		}
+		buf[0] = '\0';
+	}
+}
+
+static char	*get_script_line(int fd, t_env *env) {
 	char	*line = get_next_line(fd);
 	char	*aliased_line;
 
@@ -72,7 +103,7 @@ int	script_loop(t_env *env, char *path) {
 	return (0);
 }
 
-char	*get_interactive_line(char *prompt, t_env *env) {
+static char	*get_interactive_line(char *prompt, t_env *env) {
 	char	*line = tshoo_line(prompt, env->history);
 	char	*aliased_line;
 

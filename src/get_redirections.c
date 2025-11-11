@@ -34,16 +34,16 @@ int	get_redirections(t_node *node, t_token *toks) {
 	t_redir	*in_tail;
 	t_redir	*out_tail;
 
-	node->in_redir = NULL;
-	node->out_redir = NULL;
+	node->as.cmd.in_redir = NULL;
+	node->as.cmd.out_redir = NULL;
 	in_tail = NULL;
 	out_tail = NULL;
 	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
 		if (is_in_redir(toks)) {
-			add_redir(&in_tail, &(node->in_redir), toks);
+			add_redir(&in_tail, &(node->as.cmd.in_redir), toks);
 			toks = toks->next->next;
 		} else if (is_out_redir(toks)) {
-			add_redir(&out_tail, &(node->out_redir), toks);
+			add_redir(&out_tail, &(node->as.cmd.out_redir), toks);
 			toks = toks->next->next;
 		} else {
 			toks = toks->next;

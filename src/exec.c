@@ -9,7 +9,6 @@
 #include "env.h"
 #include "messages.h"
 #include "nodes.h"
-#include "token_and_node_types.h"
 
 typedef int	(*t_builtin)(t_node *cmd, t_env *env);
 
@@ -65,7 +64,7 @@ static void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	int	saved_stdin = dup(STDIN_FILENO);
 	int	saved_stdout = dup(STDOUT_FILENO);
 
-	expand_command(node->arg, env->env_list);
+	expand_command(node->as.cmd.arg, env->env_list);
 	trim_command(node);
 	setup_redirections(node);
 	func(node, env);
@@ -78,16 +77,16 @@ static void	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 static int	get_pipes(t_node *ast, int in, int out) {
 	int	fds[2];
 
-	if (ast->type == PIPE) {
+	if (ast->kind == PIPE) {
 		pipe(fds);
-		get_pipes(ast->left, in, fds[1]);
-		get_pipes(ast->right, fds[0], out);
-	} else if (ast->type == CMD) {
-		ast->in = in;
-		ast->out = out;
+		get_pipes(ast->as.binary.left, in, fds[1]);
+		get_pipes(ast->as.binary.right, fds[0], out);
+	} else if (ast->kind == CMD) {
+		ast->as.cmd.in = in;
+		ast->as.cmd.out = out;
 	} else {
-		get_pipes(ast->left, STDIN_FILENO, out);
-		get_pipes(ast->right, in, STDOUT_FILENO);
+		get_pipes(ast->as.binary.left, STDIN_FILENO, out);
+		get_pipes(ast->as.binary.right, in, STDOUT_FILENO);
 	}
 	return (0);
 }
@@ -97,12 +96,12 @@ static int	wait_ast(t_node *ast) {
 
 	if (!ast)
 		return (-1);
-	if (ast->type == CMD) {
-		waitpid(ast->pid, &status, 0);
+	if (ast->kind == CMD) {
+		waitpid(ast->as.cmd.pid, &status, 0);
 		return (status);
 	}
-	wait_ast(ast->left);
-	status = wait_ast(ast->right);
+	wait_ast(ast->as.binary.left);
+	status = wait_ast(ast->as.binary.right);
 	return (status);
 }
 
@@ -123,18 +122,18 @@ static int	exec_command(t_node *command, t_env *env, t_node *ast_root) {
 	char	**cmd_args;
 	char	**cmd_env;
 
-	command->pid = fork();
-	if (command->pid == -1)
+	command->as.cmd.pid = fork();
+	if (command->as.cmd.pid == -1)
 		return (dprintf(2, "%s%s\n", FATAL_HD, ERR_FORK), 1);
-	if (command->pid != 0)
+	if (command->as.cmd.pid != 0)
 		return (0);
 	sigaction(SIGINT, &(struct sigaction){.sa_handler = SIG_DFL}, NULL);
-	expand_command(command->arg, env->env_list);
+	expand_command(command->as.cmd.arg, env->env_list);
 	trim_command(command);
 	if (setup_redirections(command) == 1)
 		error_child_process(ast_root, env);
-	cmd_args = command->arg;
-	command->arg = NULL;
+	cmd_args = command->as.cmd.arg;
+	command->as.cmd.arg = NULL;
 	cmd_env = list_to_env(env->env_list);
 	clean_child_process(ast_root, env);
 	execve(cmd_args[0], cmd_args, cmd_env);
@@ -147,84 +146,71 @@ int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
 	t_builtin	func;
 	int			ret = 0;
 
-	func = is_builtin(ast->arg[0]);
+	func = is_builtin(ast->as.cmd.arg[0]);
 	if (func)
 		exec_builtin(func, ast, env);
-	else if (ast->arg[0] && strchr(ast->arg[0], '='))
-		assign_variable(env, ast->arg[0]);
+	else if (ast->as.cmd.arg[0] && strchr(ast->as.cmd.arg[0], '='))
+		assign_variable(env, ast->as.cmd.arg[0]);
 	else if (get_bin_path(ast, get_kv_value(env->env_list, "PATH")) == 0)
 		ret = exec_command(ast, env, ast_root);
 	else
-		dprintf(2, "%s%s : %s\n", MSTK_HD, ast->arg[0], CMD_FND);
+		dprintf(2, "%s%s : %s\n", MSTK_HD, ast->as.cmd.arg[0], CMD_FND);
 	if (ret == 1)
 		env->should_exit = true;
 	return (0);
 }
 
-int	exec_ast(t_node *ast, t_env *env, t_node *ast_root, int sublvl);
+int	exec_ast(t_node *ast, t_env *env, t_node *ast_root);
 
-int	or_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
-	exec_ast(ast->left, env, ast_root, sublvl);
-	if (wait_ast(ast->left) == 0)
+int	or_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->as.binary.left, env, ast_root);
+	if (wait_ast(ast->as.binary.left) == 0)
 		return (0);
-	exec_ast(ast->right, env, ast_root, sublvl);
+	exec_ast(ast->as.binary.right, env, ast_root);
 	return (0);
 }
 
-int	and_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
-	exec_ast(ast->left, env, ast_root, sublvl);
-	if (wait_ast(ast->left) != 0)
+int	and_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->as.binary.left, env, ast_root);
+	if (wait_ast(ast->as.binary.left) != 0)
 		return (0);
-	exec_ast(ast->right, env, ast_root, sublvl);
+	exec_ast(ast->as.binary.right, env, ast_root);
 	return (0);
 }
 
-int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
-	exec_ast(ast->left, env, ast_root, sublvl);
-	wait_ast(ast->left);
-	exec_ast(ast->right, env, ast_root, sublvl);
+int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root) {
+	exec_ast(ast->as.binary.left, env, ast_root);
+	wait_ast(ast->as.binary.left);
+	exec_ast(ast->as.binary.right, env, ast_root);
 	return (0);
 }
 
-int	subshell(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
+int	subshell(t_node *ast, t_env *env, t_node *ast_root) {
 	int	pid = fork();
 
 	if (pid != 0)
 		return (wait_ast(ast), pid);
-	exec_ast(ast, env, ast_root, sublvl);
+	exec_ast(ast, env, ast_root);
 	wait_ast(ast);
 	clean_child_process(ast_root, env);
 	exit(EXIT_SUCCESS);
 }
 
-int	exec_ast(t_node *ast, t_env *env, t_node *ast_root, int sublvl) {
-	int	pid;
-
-	if (ast->sublvl > sublvl) {
-		pid = subshell(ast, env, ast_root, ast->sublvl);
-		waitpid(pid, 0, 0);
-	} else if (ast->type == SEMI_COL) {
-		semi_col_exec(ast, env, ast_root, sublvl);
-	} else if (ast->type == OR) {
-		or_exec(ast, env, ast_root, sublvl);
-	} else if (ast->type == AND) {
-		and_exec(ast, env, ast_root, sublvl);
-	} else if (ast->type == PIPE) {
-		exec_ast(ast->left, env, ast_root, sublvl);
-		exec_ast(ast->right, env, ast_root, sublvl);
-	} else if (ast->type == CMD) {
+int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
+	if (ast->kind == PIPE) {
+		exec_ast(ast->as.binary.left, env, ast_root);
+		exec_ast(ast->as.binary.right, env, ast_root);
+	} else if (ast->kind == CMD) {
 		exec_cmd_node(ast, env, ast_root);
-		if (ast->in != -1 && ast->in != 1 && ast->in != 0)
-			safer_close(&ast->in);
-		if (ast->out != -1 && ast->out != 1 && ast->out != 0)
-			safer_close(&ast->out);
+		safer_close(&ast->as.cmd.in);
+		safer_close(&ast->as.cmd.out);
 	}
 	return (0);
 }
 
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
-	exec_ast(ast, env, ast, 0);
+	exec_ast(ast, env, ast);
 	wait_ast(ast);
 	return (0);
 }
