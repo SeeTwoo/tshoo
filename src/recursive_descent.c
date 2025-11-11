@@ -38,6 +38,8 @@ t_node	*pipe_node(t_token *toks, t_node *tree) {
 
 	if (!new)
 		return (NULL);
+	new->kind = PIPE;
+	new->subshell = false;
 	new->as.binary.left = tree;
 	new->as.binary.right = recursive_descent(toks->next, NULL);
 	return (new);

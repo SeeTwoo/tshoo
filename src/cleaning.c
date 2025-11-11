@@ -27,6 +27,8 @@ void	close_every_fd(t_node *ast) {
 }
 
 void	free_double_array(char **array) {
+	if (!array)
+		return ;
 	for (int i = 0; array[i]; i++)
 		free(array[i]);
 	free(array);
@@ -53,21 +55,24 @@ void	free_list_redir(t_redir *head) {
 void	free_node(t_node *node) {
 	if (!node)
 		return ;
-	if (node->as.cmd.arg)
+	if (node->kind == CMD) {
 		free_double_array(node->as.cmd.arg);
-	if (node->as.cmd.in_redir)
 		free_list_redir(node->as.cmd.in_redir);
-	if (node->as.cmd.out_redir)
 		free_list_redir(node->as.cmd.out_redir);
+	}
 	free(node);
 }
 
 void	free_ast(t_node *ast) {
 	if (!ast)
 		return ;
-	free_ast(ast->as.binary.right);
-	free_ast(ast->as.binary.left);
-	free_node(ast);
+	if (ast->kind == CMD) {
+		free_node(ast);
+	} else {
+		free_ast(ast->as.binary.right);
+		free_ast(ast->as.binary.left);
+		free_node(ast);
+	}
 }
 
 void	free_token_array(t_token **tok_array) {
