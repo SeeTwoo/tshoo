@@ -197,13 +197,15 @@ int	subshell(t_node *ast, t_env *env, t_node *ast_root) {
 }
 
 int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
-	if (ast->kind == PIPE) {
-		exec_ast(ast->as.binary.left, env, ast_root);
-		exec_ast(ast->as.binary.right, env, ast_root);
-	} else if (ast->kind == CMD) {
+	if (ast->kind == CMD) {
 		exec_cmd_node(ast, env, ast_root);
 		safer_close(&ast->as.cmd.in);
 		safer_close(&ast->as.cmd.out);
+	} else if (ast->kind == PIPE) {
+		exec_ast(ast->as.binary.left, env, ast_root);
+		exec_ast(ast->as.binary.right, env, ast_root);
+	} else if (ast->kind == AND) {
+		and_exec(ast, env, ast_root);
 	}
 	return (0);
 }

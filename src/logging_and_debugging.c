@@ -67,13 +67,15 @@ void	print_nodes(t_node *node) {
 	if (!node)
 		return ;
 	dprintf(2, "   --- node ---\n");
-	print_type(node->type);
-	if (node->type == CMD) {
-		dprintf(2, "\t\t%s\n", node->arg[0]);
-		dprintf(2, "in = %d and out = %d\n", node->in, node->out);
+	print_type(node->kind);
+	if (node->kind == CMD) {
+		dprintf(2, "\t\t%s\n", node->as.cmd.arg[0]);
+		dprintf(2, "in = %d and out = %d\n", node->as.cmd.in, node->as.cmd.out);
 	} else
 		dprintf(2, "\n");
 	dprintf(2, "\n");
-	print_nodes(node->left);
-	print_nodes(node->right);
+	if (node->kind != CMD) {
+		print_nodes(node->as.binary.left);
+		print_nodes(node->as.binary.right);
+	}
 }

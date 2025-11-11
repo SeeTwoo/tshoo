@@ -18,6 +18,7 @@ SRC_FILES = aliasing.c \
 			init_env.c \
 			is_token_type.c \
 			lexer.c \
+			logging_and_debugging.c \
 			loops.c \
 			main.c \
 			parsing.c \
