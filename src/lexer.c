@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "token.h"
-#include "token_and_node_types.h"
 
 #ifndef DELIMS_SET
 # define DELIMS "<>&|;()"
@@ -13,6 +12,7 @@
 #endif
 
 void	free_token_list(t_token *head);
+int		is_redir(t_token *token);
 
 static void	skip_whitespaces(char **line) {
 	while (isspace(**line))
@@ -135,6 +135,8 @@ t_token	*lexer(char *line) {
 		tail->next = token(&line, tail);
 		if (!tail->next)
 			return (free_token_list(head), NULL);
+		if (is_redir(tail))
+			tail->next->type = FILE_NAME;
 		tail = tail->next;
 	}
 	return (head);

@@ -3,7 +3,6 @@
 
 #include "nodes.h"
 #include "token.h"
-#include "token_and_node_types.h"
 
 void	free_token_list(t_token *list);
 int		is_syntaxically_correct(t_token *toks);

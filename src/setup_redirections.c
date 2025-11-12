@@ -7,7 +7,6 @@
 #include "messages.h"
 #include "nodes.h"
 #include "redirections.h"
-#include "token_and_node_types.h"
 
 int	heredoc(char *limiter);
 

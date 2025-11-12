@@ -4,10 +4,9 @@
 #include "nodes.h"
 #include "token.h"
 #include "redirections.h"
-#include "token_and_node_types.h"
 
 static void	print_type(int type) {
-	if (type == CMD)
+	if (type == N_CMD)
 		dprintf(2, "CMD");
 
 	else if (type == PIPE)
@@ -68,13 +67,13 @@ void	print_nodes(t_node *node) {
 		return ;
 	dprintf(2, "   --- node ---\n");
 	print_type(node->kind);
-	if (node->kind == CMD) {
+	if (node->kind == N_CMD) {
 		dprintf(2, "\t\t%s\n", node->as.cmd.arg[0]);
 		dprintf(2, "in = %d and out = %d\n", node->as.cmd.in, node->as.cmd.out);
 	} else
 		dprintf(2, "\n");
 	dprintf(2, "\n");
-	if (node->kind != CMD) {
+	if (node->kind != N_CMD) {
 		print_nodes(node->as.binary.left);
 		print_nodes(node->as.binary.right);
 	}

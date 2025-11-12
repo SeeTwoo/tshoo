@@ -4,7 +4,6 @@
 
 #include "token.h"
 #include "nodes.h"
-#include "token_and_node_types.h"
 
 int	is_in_redir(t_token *token);
 int	is_out_redir(t_token *token);

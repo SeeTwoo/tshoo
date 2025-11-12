@@ -41,9 +41,9 @@ static char	*find_command_full_path(char *paths, char *name) {
 int	get_bin_path(t_node *node, char *path_variable) {
 	char	*command_path;
 
-	if (!node || !(node->as.cmd.arg) || !(node->as.cmd.arg[0]))
+	if (!node || !(node->as.cmd.arg))
 		return (1);
-	if (access(node->as.cmd.arg[0], X_OK) == 0)
+	if (access(node->as.cmd.arg[0], X_OK) == 0 || !(node->as.cmd.arg[0]))
 		return (0);
 	if (!path_variable)
 		return (1);
