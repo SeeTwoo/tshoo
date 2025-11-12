@@ -1,14 +1,14 @@
 #include "recursive_descent.h"
 
 t_token	*skip_cmd_tokens(t_token *toks) {
-	while (toks && (toks->type == WORD || is_redir(toks)))
+	while (toks && (toks->kind == WORD || is_redir(toks)))
 		toks = toks->next;
 	return (toks);
 }
 
 char	*find_command(t_token *toks) {
 	while (toks) {
-		if (toks->type == WORD)
+		if (toks->kind == WORD)
 			return (toks->lexeme);
 		toks = toks->next;
 	}
@@ -46,7 +46,7 @@ t_node	*new_cmd_node(t_token *toks) {
 	if (!new)
 		return (NULL);
 	new->as.cmd.func = is_builtin(find_command(toks));
-	new->kind = new->as.cmd.func ? N_BUILTIN : N_CMD;
+	new->kind = new->as.cmd.func ? BUILTIN : CMD;
 	new->subshell = false;
 	new->as.cmd.arg = tok_to_args(toks);
 	new->as.cmd.in = 0;
@@ -57,8 +57,8 @@ t_node	*new_cmd_node(t_token *toks) {
 	return (recursive_descent(skip_cmd_tokens(toks), new));
 }
 
-t_node	*new_binary_node(t_token *toks, t_node *tree, e_node_kind kind) {
-	if (!tree || !(toks->next) || toks->next->type != WORD)
+t_node	*new_binary_node(t_token *toks, t_node *tree, e_kind kind) {
+	if (!tree || !(toks->next) || toks->next->kind != WORD)
 		return (dprintf(2, "unclosed pipe"), NULL);
 
 	t_node *new = malloc(sizeof(t_node));
@@ -75,11 +75,11 @@ t_node	*new_binary_node(t_token *toks, t_node *tree, e_node_kind kind) {
 t_node	*recursive_descent(t_token *toks, t_node *tree) {
 	if (!toks)
 		return (tree);
-	if (toks->type == WORD)
+	if (toks->kind == WORD)
 		return (new_cmd_node(toks));
-	else if (toks->type == PIPE)
-		return (new_binary_node(toks, tree, N_PIPE));
-	else if (toks->type == AND)
-		return (new_binary_node(toks, tree, N_AND));
+	else if (toks->kind == PIPE)
+		return (new_binary_node(toks, tree, PIPE));
+	else if (toks->kind == AND)
+		return (new_binary_node(toks, tree, AND));
 	return (NULL);
 }

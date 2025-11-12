@@ -25,7 +25,7 @@ void	add_redir(t_redir **tail, t_redir **head, t_token *toks) {
 	new->name = NULL;
 	new->name = strdup(toks->next->lexeme);
 	///better freeeing pls
-	new->type = toks->type;
+	new->kind = toks->kind;
 	new->next = NULL;
 }
 
@@ -37,7 +37,7 @@ int	get_redirections(t_node *node, t_token *toks) {
 	node->as.cmd.out_redir = NULL;
 	in_tail = NULL;
 	out_tail = NULL;
-	while (toks && (is_redir(toks) || toks->type == WORD || toks->type == FILE_NAME)) {
+	while (toks && (is_redir(toks) || toks->kind == WORD || toks->kind == FILE_NAME)) {
 		if (is_in_redir(toks)) {
 			add_redir(&in_tail, &(node->as.cmd.in_redir), toks);
 			toks = toks->next->next;

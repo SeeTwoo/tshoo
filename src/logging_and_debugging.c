@@ -6,7 +6,7 @@
 #include "redirections.h"
 
 static void	print_type(int type) {
-	if (type == N_CMD)
+	if (type == CMD)
 		dprintf(2, "CMD");
 
 	else if (type == PIPE)
@@ -18,8 +18,8 @@ static void	print_type(int type) {
 	else if (type == OR)
 		dprintf(2, "OR");
 
-	else if (type == SEMI_COL)
-		dprintf(2, "SEMI_COL");
+	else if (type == LST)
+		dprintf(2, "LST");
 
 	else if (type == WORD)
 		dprintf(2, "WORD");
@@ -67,13 +67,13 @@ void	print_nodes(t_node *node) {
 		return ;
 	dprintf(2, "   --- node ---\n");
 	print_type(node->kind);
-	if (node->kind == N_CMD) {
+	if (node->kind == CMD) {
 		dprintf(2, "\t\t%s\n", node->as.cmd.arg[0]);
 		dprintf(2, "in = %d and out = %d\n", node->as.cmd.in, node->as.cmd.out);
 	} else
 		dprintf(2, "\n");
 	dprintf(2, "\n");
-	if (node->kind != N_CMD) {
+	if (node->kind != CMD) {
 		print_nodes(node->as.binary.left);
 		print_nodes(node->as.binary.right);
 	}

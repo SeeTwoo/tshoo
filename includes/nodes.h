@@ -5,6 +5,7 @@
 #include <sys/types.h>
 
 #include "env.h"
+#include "kinds.h"
 #include "redirections.h"
 
 
@@ -30,8 +31,8 @@ struct s_cmd_node {
 };
 
 struct s_node {
-	e_node_kind	kind;
-	bool		subshell;
+	e_kind	kind;
+	bool	subshell;
 	union {
 		cmd_node		cmd;
 		binary_node		binary;

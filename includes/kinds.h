@@ -1,12 +1,9 @@
 #ifndef KINDS_H
 # define KINDS_H
 
-typedef enum enum_node_kinds	e_kind;
+typedef enum enum_kinds	e_kind;
 
 enum enum_kinds {
-};
-
-enum enum_token_kinds {
 	WORD,
 	IN,
 	HD,

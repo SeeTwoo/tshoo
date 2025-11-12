@@ -20,9 +20,9 @@ static int	setup_in_redirs(t_redir *head) {
 	if (!head)
 		return (0);
 	while (head) {
-		if (head->type == IN)
+		if (head->kind == IN)
 			infile_fd = open(head->name, O_RDONLY);
-		else if (head->type == HD)
+		else if (head->kind == HD)
 			infile_fd = heredoc(head->name);
 		if (infile_fd == -1)
 			return (dprintf(2, "%s%s : %s\n", WARN_HD, head->name, strerror(errno)), 1);
@@ -41,7 +41,7 @@ static int	setup_out_redirs(t_redir *head) {
 	if (!head)
 		return (0);
 	while (head) {
-		flags = O_WRONLY | O_CREAT | head->type;
+		flags = O_WRONLY | O_CREAT | head->kind;
 		outfile_fd = open(head->name, flags, 0644);
 		if (outfile_fd == -1)
 			return (dprintf(2, "%s%s : %s\n", WARN_HD, head->name, strerror(errno)), 1);

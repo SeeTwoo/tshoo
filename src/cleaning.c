@@ -17,7 +17,7 @@ void	safer_close(int *fd) {
 void	close_every_fd(t_node *ast) {
 	if (!ast)
 		return ;
-	if (ast->kind == N_CMD) {
+	if (ast->kind == CMD) {
 		safer_close(&ast->as.cmd.in);
 		safer_close(&ast->as.cmd.out);
 	} else {
@@ -55,7 +55,7 @@ void	free_list_redir(t_redir *head) {
 void	free_node(t_node *node) {
 	if (!node)
 		return ;
-	if (node->kind == N_CMD) {
+	if (node->kind == CMD) {
 		free_double_array(node->as.cmd.arg);
 		free_list_redir(node->as.cmd.in_redir);
 		free_list_redir(node->as.cmd.out_redir);
@@ -66,7 +66,7 @@ void	free_node(t_node *node) {
 void	free_ast(t_node *ast) {
 	if (!ast)
 		return ;
-	if (ast->kind == N_CMD) {
+	if (ast->kind == CMD || ast->kind == BUILTIN) {
 		free_node(ast);
 	} else {
 		free_ast(ast->as.binary.right);

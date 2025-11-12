@@ -35,7 +35,7 @@ static int	get_type(char current, int len) {
 	else if (current == '&' && len == 2)
 		return (AND);
 	else if (current == ';' && len == 1)
-		return (SEMI_COL);
+		return (LST);
 	else if (current == '(' && len == 1)
 		return (OPEN_PAR);
 	else if (current == ')' && len == 1)
@@ -87,7 +87,7 @@ static t_token *delim_token(char **line, t_token *prev) {
 	new->lexeme = strndup(*line, len);
 	if (!new->lexeme)
 		return (free(new), NULL);
-	new->type = get_type(**line, len);
+	new->kind = get_type(**line, len);
 	new->next = NULL;
 	new->prev = prev;
 	(*line) += len;
@@ -103,7 +103,7 @@ static t_token	*word_token(char **line, t_token *prev) {
 	new->lexeme = strndup(*line, len);
 	if (!new->lexeme)
 		return (free(new), NULL);
-	new->type = WORD;
+	new->kind = WORD;
 	new->next = NULL;
 	new->prev = prev;
 	(*line) += len;
@@ -136,7 +136,7 @@ t_token	*lexer(char *line) {
 		if (!tail->next)
 			return (free_token_list(head), NULL);
 		if (is_redir(tail))
-			tail->next->type = FILE_NAME;
+			tail->next->kind = FILE_NAME;
 		tail = tail->next;
 	}
 	return (head);

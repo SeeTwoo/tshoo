@@ -24,7 +24,6 @@ SRC_FILES = aliasing.c \
 			parsing.c \
 			recursive_descent.c \
 			set_options.c \
-			set_token_types.c \
 			setup_redirections.c \
 			tok_to_args.c \
 			trim_command.c \

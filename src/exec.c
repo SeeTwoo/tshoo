@@ -19,11 +19,11 @@ static int	exec_builtin(t_node *node, t_env *env) {
 static int	get_pipes(t_node *ast, int in, int out) {
 	int	fds[2];
 
-	if (ast->kind == N_PIPE) {
+	if (ast->kind == PIPE) {
 		pipe(fds);
 		get_pipes(ast->as.binary.left, in, fds[1]);
 		get_pipes(ast->as.binary.right, fds[0], out);
-	} else if (ast->kind == N_CMD) {
+	} else if (ast->kind == CMD || ast->kind == BUILTIN) {
 		ast->as.cmd.in = in;
 		ast->as.cmd.out = out;
 	} else {
@@ -38,9 +38,11 @@ static int	wait_ast(t_node *ast) {
 
 	if (!ast)
 		return (-1);
-	if (ast->kind == N_CMD) {
+	if (ast->kind == CMD) {
 		waitpid(ast->as.cmd.pid, &status, 0);
 		return (status);
+	} else if (ast->kind == BUILTIN) {
+		return (ast->as.cmd.exit_status);
 	}
 	wait_ast(ast->as.binary.left);
 	status = wait_ast(ast->as.binary.right);
@@ -138,14 +140,14 @@ int	subshell(t_node *ast, t_env *env, t_node *ast_root) {
 }
 
 int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
-	if (ast->kind == N_CMD) {
+	if (ast->kind == CMD || ast->kind == BUILTIN) {
 		exec_cmd_node(ast, env, ast_root);
 		safer_close(&ast->as.cmd.in);
 		safer_close(&ast->as.cmd.out);
-	} else if (ast->kind == N_PIPE) {
+	} else if (ast->kind == PIPE) {
 		exec_ast(ast->as.binary.left, env, ast_root);
 		exec_ast(ast->as.binary.right, env, ast_root);
-	} else if (ast->kind == N_AND) {
+	} else if (ast->kind == AND) {
 		and_exec(ast, env, ast_root);
 	}
 	return (0);

@@ -3,14 +3,15 @@
 
 # include <stddef.h>
 
+# include "kinds.h"
 
 typedef struct s_token	t_token;
 
 struct s_token {
-	e_token_kind	type;
-	char			*lexeme;
-	t_token			*prev;
-	t_token			*next;
+	e_kind	kind;
+	char	*lexeme;
+	t_token	*prev;
+	t_token	*next;
 };
 
 #endif
