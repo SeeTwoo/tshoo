@@ -1,5 +1,62 @@
 #include "recursive_descent.h"
 
+size_t	arg_number(t_token *toks) {
+	size_t	i = 0;
+
+	while (toks && (is_redir(toks) || toks->kind == WORD || toks->kind == FILE_NAME)) {
+		if (toks->kind == WORD)
+			i++;
+		toks = toks->next;
+	}
+	return (i);
+}
+
+void	add_redir(t_redir **tail, t_redir **head, t_token **toks) {
+	t_redir *new;
+
+	new = malloc(sizeof(t_redir));
+	if (!new)
+		return ;
+	if (!(*head)) {
+		*head = new;
+		*tail = *head;
+	} else {
+		(*tail)->next = new;
+		*tail = (*tail)->next;
+	}
+	new->name = strdup((*toks)->next->lexeme);
+	///better freeeing pls
+	new->kind = (*toks)->kind;
+	new->next = NULL;
+	*toks = (*toks)->next->next;
+}
+
+int	consume_tokens(t_node *node, t_token **toks) {
+	int		i = 0;
+	t_redir	*in_tail = NULL;
+	t_redir	*out_tail = NULL;;
+
+	node->as.cmd.in_redir = NULL;
+	node->as.cmd.out_redir = NULL;
+	node->as.cmd.arg = malloc(sizeof(char *) * (arg_number(*toks) + 1));
+	if (!(node->as.cmd.arg))
+		return (1);
+	while (*toks && (is_redir(*toks) || (*toks)->kind == WORD || (*toks)->kind == FILE_NAME)) {
+		if (is_in_redir(*toks)) {
+			add_redir(&in_tail, &(node->as.cmd.in_redir), toks);
+		} else if (is_out_redir(*toks)) {
+			add_redir(&out_tail, &(node->as.cmd.out_redir), toks);
+		} else if ((*toks)->kind == WORD) {
+			node->as.cmd.arg[i++] = strdup((*toks)->lexeme);
+			*toks = (*toks)->next;
+		} else {
+			*toks = (*toks)->next;
+		}
+	}
+	node->as.cmd.arg[i] = NULL;
+	return (0);
+}
+
 char	*find_command(t_token *toks) {
 	while (toks) {
 		if (toks->kind == WORD)
@@ -42,12 +99,11 @@ t_node	*new_cmd_node(t_token *toks) {
 	new->as.cmd.func = is_builtin(find_command(toks));
 	new->kind = new->as.cmd.func ? BUILTIN : CMD;
 	new->subshell = false;
-	new->as.cmd.arg = tok_to_args(toks);
 	new->as.cmd.in = 0;
 	new->as.cmd.out_redir = NULL;
 	new->as.cmd.pid = -1;
 	new->as.cmd.exit_status = 1;
-	get_redirections(new, &toks);
+	consume_tokens(new, &toks);
 	return (recursive_descent(toks, new));
 }
 

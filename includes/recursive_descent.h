@@ -7,6 +7,8 @@
 
 int		get_redirections(t_node *node, t_token **toks);
 int		is_redir(t_token *token);
+int		is_in_redir(t_token *token);
+int		is_out_redir(t_token *token);
 char	**tok_to_args(t_token *toks);
 
 int			tshoo_alias(t_node *cmd, t_env *env);

@@ -153,6 +153,7 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 	return (0);
 }
 
+	//print_nodes(ast);
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
 	exec_ast(ast, env, ast);
