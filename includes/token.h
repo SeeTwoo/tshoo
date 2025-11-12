@@ -3,15 +3,32 @@
 
 # include <stddef.h>
 
-# include "token_and_node_types.h"
+typedef enum enum_token_kinds	e_token_kind;
+
+enum enum_token_kinds {
+	CMD,
+	WORD,
+	PIPE,
+	IN,
+	HD,
+	TRUNC = 512,
+	APPEND = 1024,
+	FILE_NAME,
+	WRONG,
+	AND,
+	OR,
+	OPEN_PAR,
+	CLOS_PAR,
+	SEMI_COL
+};
 
 typedef struct s_token	t_token;
 
 struct s_token {
-	char	*lexeme;
-	e_kind	type;
-	t_token	*prev;
-	t_token	*next;
+	e_token_kind	type;
+	char			*lexeme;
+	t_token			*prev;
+	t_token			*next;
 };
 
 #endif
