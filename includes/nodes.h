@@ -4,24 +4,18 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#include "env.h"
 #include "redirections.h"
 
-typedef enum enum_node_kinds	e_node_kind;
 
 typedef struct s_node			t_node;
-typedef struct s_built			t_built;
-typedef struct s_binary_node	t_binary_node;
-typedef struct s_cmd_node		t_cmd_node;
-typedef int	(*t_builtin_function)(t_node *, t_env *);
+typedef struct s_cmd_node		cmd_node;
+typedef struct s_binary_node	binary_node;
+typedef int	(builtin)(t_node *, t_env *);
 
 struct s_binary_node {
 	t_node		*left;
 	t_node		*right;
-};
-
-struct s_built {
-	t_builtin_function	*func;
-	int					exit_status;
 };
 
 struct s_cmd_node {
@@ -30,28 +24,18 @@ struct s_cmd_node {
 	int		out;
 	t_redir	*in_redir;
 	t_redir	*out_redir;
-	union {
-		int		pid;
-		t_built	builtin;
-	} as;
+	int		pid;
+	int		exit_status;
+	builtin	*func;
 };
 
 struct s_node {
 	e_node_kind	kind;
 	bool		subshell;
 	union {
-		t_cmd_node	cmd;
-		binary_node	binary;
+		cmd_node		cmd;
+		binary_node		binary;
 	} as;
-};
-
-enum enum_node_kinds {
-	CMD,
-	BUILTIN,
-	LST,
-	PIPE,
-	AND,
-	OR
 };
 
 #endif

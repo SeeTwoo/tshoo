@@ -1,0 +1,36 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+execution
+
+	execute a builtin ->happens if there is a builtin
+
+
+	variable assignation
+
+
+	execute an extern command ->happens if it can find and access a path to an extern binary
+
+
+
+
+	autocd

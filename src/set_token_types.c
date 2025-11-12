@@ -1,5 +1,4 @@
 #include "token.h"
-#include "token_and_node_types.h"
 
 int	is_redir(t_token *token);
 

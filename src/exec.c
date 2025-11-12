@@ -1,28 +1,6 @@
 #include <exec.h>
 
-static t_builtin	is_builtin(char *name) {
-	if (!name)
-		return (NULL);
-	if (strcmp(name, "exit") == 0)
-		return (tshoo_exit);
-	else if (strcmp(name, "echo") == 0)
-		return (tshoo_echo);
-	else if (strcmp(name, "cd") == 0)
-		return (tshoo_cd);
-	else if (strcmp(name, "alias") == 0)
-		return (tshoo_alias);
-	else if (strcmp(name, "unalias") == 0)
-		return (tshoo_unalias);
-	else if (strcmp(name, "env") == 0)
-		return (tshoo_env);
-	else if (strcmp(name, "unset") == 0)
-		return (tshoo_unset);
-	else if (strcmp(name, "style") == 0)
-		return (tshoo_style);
-	return (NULL);
-}
-
-static int	exec_builtin(t_builtin func, t_node *node, t_env *env) {
+static int	exec_builtin(t_node *node, t_env *env) {
 	int	ret;
 	int	saved_stdin = dup(STDIN_FILENO);
 	int	saved_stdout = dup(STDOUT_FILENO);
@@ -30,7 +8,7 @@ static int	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 	expand_command(node->as.cmd.arg, env->env_list);
 	trim_command(node);
 	setup_redirections(node);
-	ret = func(node, env);
+	ret = node->as.cmd.func(node, env);
 	dup2(saved_stdin, STDIN_FILENO);
 	dup2(saved_stdout, STDOUT_FILENO);
 	safer_close(&saved_stdin);
@@ -41,11 +19,11 @@ static int	exec_builtin(t_builtin func, t_node *node, t_env *env) {
 static int	get_pipes(t_node *ast, int in, int out) {
 	int	fds[2];
 
-	if (ast->kind == PIPE) {
+	if (ast->kind == N_PIPE) {
 		pipe(fds);
 		get_pipes(ast->as.binary.left, in, fds[1]);
 		get_pipes(ast->as.binary.right, fds[0], out);
-	} else if (ast->kind == CMD) {
+	} else if (ast->kind == N_CMD) {
 		ast->as.cmd.in = in;
 		ast->as.cmd.out = out;
 	} else {
@@ -60,7 +38,7 @@ static int	wait_ast(t_node *ast) {
 
 	if (!ast)
 		return (-1);
-	if (ast->kind == CMD) {
+	if (ast->kind == N_CMD) {
 		waitpid(ast->as.cmd.pid, &status, 0);
 		return (status);
 	}
@@ -107,20 +85,19 @@ static int	exec_command(t_node *command, t_env *env, t_node *ast_root) {
 }
 
 int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
-	t_builtin	func;
-	int			ret = 0;
+	int	execution_status;
 
-	func = is_builtin(ast->as.cmd.arg[0]);
-	if (func)
-		exec_builtin(func, ast, env);
-	else if (ast->as.cmd.arg[0] && strchr(ast->as.cmd.arg[0], '='))
+	if (ast->as.cmd.func) {
+		ast->as.cmd.exit_status = exec_builtin(ast, env);
+	} else if (ast->as.cmd.arg[0] && strchr(ast->as.cmd.arg[0], '=') && !(ast->as.cmd.arg[1])) {
 		assign_variable(env, ast->as.cmd.arg[0]);
-	else if (get_bin_path(ast, get_kv_value(env->env_list, "PATH")) == 0)
-		ret = exec_command(ast, env, ast_root);
-	else
+	} else if (get_bin_path(ast, get_kv_value(env->env_list, "PATH")) == 0) {
+		execution_status = exec_command(ast, env, ast_root);
+		if (execution_status == 1)
+			env->should_exit = true;
+	} else {
 		dprintf(2, "%s%s : %s\n", MSTK_HD, ast->as.cmd.arg[0], CMD_FND);
-	if (ret == 1)
-		env->should_exit = true;
+	}
 	return (0);
 }
 
@@ -161,14 +138,14 @@ int	subshell(t_node *ast, t_env *env, t_node *ast_root) {
 }
 
 int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
-	if (ast->kind == CMD) {
+	if (ast->kind == N_CMD) {
 		exec_cmd_node(ast, env, ast_root);
 		safer_close(&ast->as.cmd.in);
 		safer_close(&ast->as.cmd.out);
-	} else if (ast->kind == PIPE) {
+	} else if (ast->kind == N_PIPE) {
 		exec_ast(ast->as.binary.left, env, ast_root);
 		exec_ast(ast->as.binary.right, env, ast_root);
-	} else if (ast->kind == AND) {
+	} else if (ast->kind == N_AND) {
 		and_exec(ast, env, ast_root);
 	}
 	return (0);
