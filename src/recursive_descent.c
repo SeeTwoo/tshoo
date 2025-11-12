@@ -1,11 +1,5 @@
 #include "recursive_descent.h"
 
-t_token	*skip_cmd_tokens(t_token *toks) {
-	while (toks && (toks->kind == WORD || is_redir(toks)))
-		toks = toks->next;
-	return (toks);
-}
-
 char	*find_command(t_token *toks) {
 	while (toks) {
 		if (toks->kind == WORD)
@@ -53,8 +47,8 @@ t_node	*new_cmd_node(t_token *toks) {
 	new->as.cmd.out_redir = NULL;
 	new->as.cmd.pid = -1;
 	new->as.cmd.exit_status = 1;
-	get_redirections(new, toks);
-	return (recursive_descent(skip_cmd_tokens(toks), new));
+	get_redirections(new, &toks);
+	return (recursive_descent(toks, new));
 }
 
 t_node	*new_binary_node(t_token *toks, t_node *tree, e_kind kind) {
@@ -75,7 +69,7 @@ t_node	*new_binary_node(t_token *toks, t_node *tree, e_kind kind) {
 t_node	*recursive_descent(t_token *toks, t_node *tree) {
 	if (!toks)
 		return (tree);
-	if (toks->kind == WORD)
+	if (toks->kind == WORD || is_redir(toks))
 		return (new_cmd_node(toks));
 	else if (toks->kind == PIPE)
 		return (new_binary_node(toks, tree, PIPE));
