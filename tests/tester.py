@@ -10,7 +10,7 @@ def run(shell_path, cmd, ref=False):
 
 def compare(name, ref, sut):
     if (ref.stdout, ref.stderr, ref.returncode) != (sut.stdout, sut.stderr, sut.returncode):
-        print(f"\n{name}: Mismatch")
+        print(f"\n{name}: \x1b[31mMismatch\x1b[0m")
         diff = difflib.unified_diff(
             ref.stdout.splitlines(keepends=True),
             sut.stdout.splitlines(keepends=True),

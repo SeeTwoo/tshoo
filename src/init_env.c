@@ -46,5 +46,8 @@ int	init_env(t_env *env, char **arg_env) {
 	env->aliases = NULL;
 	env->should_exit = false;
 	env->style = E_FRIENDLY;
+	env->norc = false;
+	env->oneline = false;
+	env->last_exit = 0;
 	return (0);
 }
