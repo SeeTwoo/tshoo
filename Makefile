@@ -27,7 +27,6 @@ SRC_FILES = aliasing.c \
 			tshoo_alias.c \
 			tshoo_cd.c \
 			tshoo_echo.c \
-			tshoo_env.c \
 			tshoo_exit.c \
 			tshoo_style.c \
 			tshoo_unalias.c \

@@ -79,8 +79,6 @@ static builtin	*is_builtin(char *name) {
 		return (tshoo_alias);
 	else if (strcmp(name, "unalias") == 0)
 		return (tshoo_unalias);
-	else if (strcmp(name, "env") == 0)
-		return (tshoo_env);
 	else if (strcmp(name, "unset") == 0)
 		return (tshoo_unset);
 	else if (strcmp(name, "style") == 0)
