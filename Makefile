@@ -64,4 +64,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all debug clean fclean re
+test: $(NAME)
+	@cd tests && python3 tester.py ../$(NAME)
+
+.PHONY: all debug clean fclean re test
