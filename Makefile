@@ -43,7 +43,7 @@ OBJ = $(addprefix $(OBJ_DIR)/, $(OBJ_FILES))
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@$(CC) -o $@ $^ libs/key_value.a libs/tshoo_line.a && echo "\e[32mdone compiling !\e[0m"
+	@$(CC) -o $@ $^ libs/key_value.a libs/tshoo_line.a && printf "\e[32mdone compiling !\e[0m\n"
 
 $(OBJ): | $(OBJ_DIR)
 
@@ -58,11 +58,11 @@ debug:
 
 clean:
 	@rm -rf $(OBJ_DIR)
-	@echo "\e[35mdeleting object files and directory\e[0m"
+	@printf "\e[35mdeleting object files and directory\e[0m\n"
 
 fclean: clean
 	@rm -f $(NAME)
-	@echo "\e[35mdeleting executable\e[0m"
+	@printf "\e[35mdeleting executable\e[0m\n"
 
 re: fclean all
 
