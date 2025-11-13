@@ -3,5 +3,6 @@
 
 #define FRIENDLY "--friendly"
 #define POSIX "--posix"
+#define NORC "--no-rc"
 
 #endif

@@ -16,6 +16,7 @@ struct s_env {
 	t_key_value		*env_list;
 	t_tshoo_hist	*history;
 	t_style			style;
+	bool			norc;
 	int				last_exit;
 };
 
