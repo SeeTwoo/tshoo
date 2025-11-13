@@ -121,7 +121,7 @@ int	and_exec(t_node *ast, t_env *env, t_node *ast_root) {
 	return (0);
 }
 
-int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root) {
+int	list_exec(t_node *ast, t_env *env, t_node *ast_root) {
 	exec_ast(ast->as.binary.left, env, ast_root);
 	wait_ast(ast->as.binary.left);
 	exec_ast(ast->as.binary.right, env, ast_root);
@@ -151,13 +151,16 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 		and_exec(ast, env, ast_root);
 	} else if (ast->kind == OR) {
 		or_exec(ast, env, ast_root);
+	} else if (ast->kind == LST) {
+		list_exec(ast, env, ast_root);
 	}
 	return (0);
 }
 
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
-	//print_nodes(ast);
+	if (env->debug)
+		print_nodes(ast);
 	exec_ast(ast, env, ast);
 	wait_ast(ast);
 	return (0);

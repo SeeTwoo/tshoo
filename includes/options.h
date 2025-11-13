@@ -5,5 +5,6 @@
 # define POSIX "--posix"
 # define NORC "--no-rc"
 # define ONELINE "-c"
+# define DEBUG "--debug"
 
 #endif

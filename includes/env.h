@@ -18,6 +18,7 @@ struct s_env {
 	t_style			style;
 	bool			norc;
 	bool			oneline;
+	bool			debug;
 	int				last_exit;
 };
 
