@@ -149,6 +149,8 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 		exec_ast(ast->as.binary.right, env, ast_root);
 	} else if (ast->kind == AND) {
 		and_exec(ast, env, ast_root);
+	} else if (ast->kind == OR) {
+		or_exec(ast, env, ast_root);
 	}
 	return (0);
 }

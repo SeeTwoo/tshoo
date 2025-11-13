@@ -129,5 +129,7 @@ t_node	*recursive_descent(t_token *toks, t_node *tree) {
 		return (new_binary_node(toks, tree, PIPE));
 	else if (toks->kind == AND)
 		return (new_binary_node(toks, tree, AND));
+	else if (toks->kind == OR)
+		return (new_binary_node(toks, tree, OR));
 	return (NULL);
 }
