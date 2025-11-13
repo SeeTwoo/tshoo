@@ -55,7 +55,7 @@ void	free_list_redir(t_redir *head) {
 void	free_node(t_node *node) {
 	if (!node)
 		return ;
-	if (node->kind == CMD) {
+	if (node->kind == CMD || node->kind == BUILTIN) {
 		free_double_array(node->as.cmd.arg);
 		free_list_redir(node->as.cmd.in_redir);
 		free_list_redir(node->as.cmd.out_redir);

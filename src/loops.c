@@ -29,7 +29,7 @@ static void	nullifythenewline(char *line) {
 	*nl = '\0';
 }
 
-static int	process_line(char *line, t_env *env) {
+int	process_line(char *line, t_env *env) {
 	t_node		*ast;
 
 	if (line[0] == '#')

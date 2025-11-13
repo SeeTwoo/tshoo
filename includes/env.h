@@ -17,6 +17,7 @@ struct s_env {
 	t_tshoo_hist	*history;
 	t_style			style;
 	bool			norc;
+	bool			oneline;
 	int				last_exit;
 };
 

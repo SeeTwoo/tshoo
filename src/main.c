@@ -6,9 +6,17 @@
 void	exec_config_file(t_env *env);
 int		init_env(t_env *env, char **arg_env);
 void	interactive_loop(t_env *env);
+int		process_line(char *line, t_env *env);
 void	set_options(t_env *env, int ac, char **av);
 
 typedef struct sigaction	t_sigaction;
+
+int	execute_one_line(t_env *env, char *command) {
+	process_line(command, env);
+	free_kv_list(env->env_list);
+	free_kv_list(env->aliases);
+	return (0);
+}
 
 int	main(int ac, char **av, char **arg_env) {
 	t_env		env;
@@ -23,6 +31,8 @@ int	main(int ac, char **av, char **arg_env) {
 	set_options(&env, ac, av);
 	if (env.norc == false)
 		exec_config_file(&env);
+	if (env.oneline == true)
+		return (execute_one_line(&env, av[2]));
 	interactive_loop(&env);
 	free_kv_list(env.env_list);
 	free_kv_list(env.aliases);
