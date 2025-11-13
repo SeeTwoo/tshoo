@@ -11,7 +11,12 @@ void	set_options(t_env *env, int ac, char **av) {
 			env->style = E_POSIX;
 		else if (strcmp(av[i], FRIENDLY) == 0)
 			env->style = E_FRIENDLY;
-		else
+		else if (strcmp(av[i], NORC) == 0)
+			env->norc = true;
+		else if (strcmp(av[i], ONELINE) == 0) {
+			env->oneline = true;
+			return ;
+		} else
 			dprintf(2, "%s%s: %s\n", MSTK_HD, av[i], UNKNOWN_OPTION);
 	}
 }

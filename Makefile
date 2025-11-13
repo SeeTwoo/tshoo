@@ -12,8 +12,6 @@ SRC_FILES = aliasing.c \
 			exec_config_file.c \
 			expansion.c \
 			get_bin_path.c \
-			get_next_line.c \
-			get_redirections.c \
 			heredoc.c \
 			init_env.c \
 			is_token_type.c \
@@ -25,7 +23,6 @@ SRC_FILES = aliasing.c \
 			recursive_descent.c \
 			set_options.c \
 			setup_redirections.c \
-			tok_to_args.c \
 			trim_command.c \
 			tshoo_alias.c \
 			tshoo_cd.c \
@@ -67,4 +64,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all debug clean fclean re
+test: $(NAME)
+	@cd tests && python3 tester.py ../$(NAME)
+
+.PHONY: all debug clean fclean re test
