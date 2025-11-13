@@ -7,7 +7,7 @@
 void	free_token_list(t_token *list);
 int		is_syntaxically_correct(t_token *toks);
 t_token	*lexer(char *line);
-t_node	*recursive_descent(t_token *toks, t_node *tree);
+t_node	*parser(t_token *toks);
 void	set_token_types(t_token *toks);
 
 void	print_nodes(t_node *node);
@@ -20,7 +20,7 @@ t_node	*parse_line(char *line) {
 	toks = lexer(line);
 	if (!toks)
 		return (NULL);
-	ast = recursive_descent(toks, NULL);
+	ast = parser(toks);
 	free_token_list(toks);
 	return (ast);
 }
