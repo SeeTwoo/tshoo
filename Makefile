@@ -43,24 +43,26 @@ OBJ = $(addprefix $(OBJ_DIR)/, $(OBJ_FILES))
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) -o $@ $^ libs/key_value.a libs/tshoo_line.a
+	@$(CC) -o $@ $^ libs/key_value.a libs/tshoo_line.a && echo "\e[32mdone compiling !\e[0m"
 
 $(OBJ): | $(OBJ_DIR)
 
 $(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) -c $< -o $@
+	@$(CC) -c $< -o $@
 
 debug:
 	$(MAKE) CC="$(CCDEBUG)" all
 
 clean:
-	rm -rf $(OBJ_DIR)
+	@rm -rf $(OBJ_DIR)
+	@echo "\e[35mdeleting object files and directory\e[0m"
 
 fclean: clean
-	rm -rf $(NAME)
+	@rm -f $(NAME)
+	@echo "\e[35mdeleting executable\e[0m"
 
 re: fclean all
 
