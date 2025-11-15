@@ -87,7 +87,7 @@ static int	exec_command(t_node *command, t_env *env, t_node *ast_root) {
 }
 
 int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
-	int	execution_status;
+	int	execution_status = 0;
 
 	if (ast->as.cmd.func) {
 		ast->as.cmd.exit_status = exec_builtin(ast, env);
@@ -95,11 +95,11 @@ int	exec_cmd_node(t_node *ast, t_env *env, t_node *ast_root) {
 		assign_variable(env, ast->as.cmd.arg[0]);
 	} else if (get_bin_path(ast, get_kv_value(env->env_list, "PATH")) == 0) {
 		execution_status = exec_command(ast, env, ast_root);
-		if (execution_status == 1)
-			env->should_exit = true;
 	} else {
 		dprintf(2, "%s%s : %s\n", MSTK_HD, ast->as.cmd.arg[0], CMD_FND);
 	}
+	if (execution_status == 1)
+		env->should_exit = true;
 	return (0);
 }
 
@@ -121,7 +121,7 @@ int	and_exec(t_node *ast, t_env *env, t_node *ast_root) {
 	return (0);
 }
 
-int	semi_col_exec(t_node *ast, t_env *env, t_node *ast_root) {
+int	list_exec(t_node *ast, t_env *env, t_node *ast_root) {
 	exec_ast(ast->as.binary.left, env, ast_root);
 	wait_ast(ast->as.binary.left);
 	exec_ast(ast->as.binary.right, env, ast_root);
@@ -149,13 +149,18 @@ int	exec_ast(t_node *ast, t_env *env, t_node *ast_root) {
 		exec_ast(ast->as.binary.right, env, ast_root);
 	} else if (ast->kind == AND) {
 		and_exec(ast, env, ast_root);
+	} else if (ast->kind == OR) {
+		or_exec(ast, env, ast_root);
+	} else if (ast->kind == LST) {
+		list_exec(ast, env, ast_root);
 	}
 	return (0);
 }
 
 int	exec(t_node *ast, t_env *env) {
 	get_pipes(ast, STDIN_FILENO, STDOUT_FILENO);
-	print_nodes(ast);
+	if (env->debug)
+		print_nodes(ast);
 	exec_ast(ast, env, ast);
 	wait_ast(ast);
 	return (0);

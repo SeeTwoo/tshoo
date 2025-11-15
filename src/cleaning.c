@@ -17,7 +17,7 @@ void	safer_close(int *fd) {
 void	close_every_fd(t_node *ast) {
 	if (!ast)
 		return ;
-	if (ast->kind == CMD) {
+	if (ast->kind == CMD || ast->kind == BUILTIN) {
 		safer_close(&ast->as.cmd.in);
 		safer_close(&ast->as.cmd.out);
 	} else {
