@@ -48,9 +48,7 @@ void	print_level(t_node *node, int i) {
 	if (i == 0) {
 		print_type(node->kind);
 		dprintf(2, "\t");
-	} else if (node->kind == CMD || node->kind == BUILTIN) {
-		return ;
-	} else {
+	} else if (node->kind != CMD || node->kind != BUILTIN) {
 		print_level(node->as.binary.left, i - 1);
 		print_level(node->as.binary.right, i - 1);
 	}
