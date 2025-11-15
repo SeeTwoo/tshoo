@@ -5,6 +5,7 @@
 #include "token.h"
 #include "redirections.h"
 
+/*
 static void	print_type(int type) {
 	if (type == CMD)
 		dprintf(2, "CMD");
@@ -24,27 +25,26 @@ static void	print_type(int type) {
 		dprintf(2, "WRONG");
 }
 
-void	print_tok_list(t_token *head) {
+static void	print_tok_list(t_token *head) {
 	while (head) {
 //		print_type(head);
 		dprintf(2, "%s\n", head->lexeme);
 		head = head->next;
 	}
 }
+*/
+
+int	get_depth(t_node *node, int depth) {
+	if (!node)
+		return (-1);
+	if (node->kind == CMD || node->kind == BUILTIN)
+		return (depth);
+	int	left = get_depth(node->as.binary.left, depth + 1);
+	int	right = get_depth(node->as.binary.right, depth + 1);
+	return (left > right ? left : right);
+}
 
 void	print_nodes(t_node *node) {
-	if (!node)
-		return ;
-	dprintf(2, "   --- node ---\n");
-	print_type(node->kind);
-	if (node->kind == CMD || node->kind == BUILTIN) {
-		dprintf(2, "\t\t%s\n", node->as.cmd.arg[0]);
-		dprintf(2, "in = %d and out = %d\n", node->as.cmd.in, node->as.cmd.out);
-	} else
-		dprintf(2, "\n");
-	dprintf(2, "\n");
-	if (node->kind != CMD && node->kind != BUILTIN) {
-		print_nodes(node->as.binary.left);
-		print_nodes(node->as.binary.right);
-	}
+	int	depth = get_depth(node, 0);
+	dprintf(2, "depth = %d\n", get_depth(node, 0));
 }
