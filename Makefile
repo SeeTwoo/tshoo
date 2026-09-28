@@ -2,7 +2,8 @@ NAME = tshoo
 CC = cc -g3 -Wall -Wextra -Werror -Iincludes
 
 SRC_DIR = src
-SRC_FILES = main.c
+SRC_FILES = main.c \
+			strings.c
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 

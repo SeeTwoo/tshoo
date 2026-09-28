@@ -2,9 +2,9 @@
 #define STRING_H
 
 struct string {
-	char	*s;
+	char	*buffer;
 	size_t	capacity;
-	size_t	used;
+	size_t	len;
 };
 
 struct string	*st_create();
