@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -15,8 +14,9 @@ void	welcome_screen()
 struct string	*line_editor()
 {
 	struct string	*line;
+	char		*prompt = "\x1b[38;5;214m%> \x1b[0m";
 
-	write(2, "$> ", 3);
+	write(2, prompt, strlen(prompt));
 	line = st_create();
 	if (!line)
 		return NULL;
@@ -37,15 +37,15 @@ struct string	*line_editor()
 
 int	main()
 {
-	bool	should_continue = true;
-
 	welcome_screen();
-	while (should_continue) {
+	while (true) {
 		struct string	*line = line_editor();
 
-		if (!line || strncmp(line->buffer, "exit", 4) == 0) {
-			should_continue = false;
-			continue ;
+		if (!line)
+			break ;
+		if (strncmp(line->buffer, "exit", 4) == 0) {
+			st_destroy(line);
+			break ;
 		}
 		write(1, line->buffer, line->len);
 		write(1, "\n", 1);
