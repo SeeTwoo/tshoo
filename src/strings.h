@@ -10,6 +10,7 @@ struct string {
 struct string	*st_create();
 void		st_destroy(struct string *);
 int		st_push(struct string *, char);
-int		insert(struct string *, char);
+int		st_remove(struct string *, size_t);
+int		insert(struct string *, size_t, char);
 
 #endif
